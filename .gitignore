@@ -1,0 +1,49 @@
+# vscode
+.vscode/
+
+# Python byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtualenvs
+.env/
+.venv/
+venv/
+ENV/
+env/
+.venv.bak/
+
+# pyenv local versions
+.python-version
+
+# Test & coverage files
+htmlcov/
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+.pytest_cache/
+.cache/
+
+# Logs and dumps
+*.log
+*.sqlite3
+*.db
+
+# OS/system files
+.DS_Store
+Thumbs.db
+
+# FastAPI auto-generated docs cache (if used)
+__fastapi_cache__/
+
+# GPS code
+.pio
+secrets.h
+
+# Others
+private_data.json
