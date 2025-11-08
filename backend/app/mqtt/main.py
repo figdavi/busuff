@@ -12,7 +12,7 @@ from paho.mqtt.properties import Properties
 
 # TODO: add broker and topics to .env, share with backend and sensors
 # TODO: Update to MQTTv5 (If possible)
-
+# TODO: Validate data
 
 broker = "broker.hivemq.com"
 port = 1883

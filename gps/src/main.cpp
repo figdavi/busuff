@@ -91,8 +91,16 @@ void loop()
     static unsigned long lastSend = 0;
     bool intervalHasPassed = (millis() - lastSend) > MQTT_PUB_INTERVAL_MS;
 
+    // https://github.com/mikalhart/TinyGPSPlus/issues/107: isValid() does not really mean valid data.
     // With valid timestamp we can study where gps failed.
-    bool timestampIsValid = gps.date.isValid() && gps.time.isValid();
+    // NOTE: TinyGPS does internal timestamp prediction when no gps readings are available, so don't check for isUpdated().
+    bool timestampIsValid = gps.date.isValid() && gps.time.isValid() &&
+                            gps.date.year() >= 2020 &&
+                            gps.date.month() >= 1 &&
+                            gps.date.day() >= 1 &&
+                            gps.time.hour() < 24 &&
+                            gps.time.minute() < 60 &&
+                            gps.time.second() < 60;
 
     if (intervalHasPassed && timestampIsValid)
     {
