@@ -8,9 +8,11 @@
 
 // TODO: Test SIM800L
 // TODO: Micro SIM card free trial
-// TODO: Introduce auth to MQTT comm
+// TODO: Introduce auth and encryption to MQTT comm
 // TODO: Resolve RX pin issue (change gps baud rate to 9600)
 // TODO: Decide internet data x historical data (send invalid data? send outdated data? If yes, Use queue to buffer unsent messages.)
+// TODO: Remove ArduinoJson
+// TODO: OTA uploads
 
 #include <Arduino.h>
 #include "secrets.h"
@@ -40,7 +42,7 @@ static const int GPS_BAUD = 115200; // Do NOT use 9600 baud rate, only 115200 wo
 
 char DEVICE_ID[32];
 
-#define DEBUG 1
+#define DEBUG 0
 
 #if DEBUG
 #define DEBUG_PRINT(x) Serial.print(x)
@@ -54,6 +56,7 @@ char DEVICE_ID[32];
 void checkMQTT();
 void checkWiFi();
 bool buildPayload(char *output, size_t outputSize);
+static inline double roundN(double value, int places);
 
 void setup()
 {
@@ -73,7 +76,7 @@ void setup()
 
 void loop()
 {
-
+    // NOTE: Keep all network tasks non-blocking (for OTA, MQTT, and WiFi reconnect to work reliably)
     checkWiFi();
     checkMQTT();
 
@@ -81,15 +84,17 @@ void loop()
     {
         char c = Serial.read();
         gps.encode(c);
-        DEBUG_PRINT(c); // raw output
+        // DEBUG_PRINT(c); // raw output
     }
 
     // static, initialization happens only once and variable persists values between iterations
     static unsigned long lastSend = 0;
     bool intervalHasPassed = (millis() - lastSend) > MQTT_PUB_INTERVAL_MS;
-    bool dataIsValid = gps.location.isValid() && gps.date.isValid() && gps.time.isValid();
 
-    if (intervalHasPassed && dataIsValid)
+    // With valid timestamp we can study where gps failed.
+    bool timestampIsValid = gps.date.isValid() && gps.time.isValid();
+
+    if (intervalHasPassed && timestampIsValid)
     {
         lastSend = millis();
         char message[256];
@@ -181,19 +186,30 @@ bool buildPayload(char *output, size_t outputSize)
     jsonData["device"]["id"] = DEVICE_ID;
     jsonData["gps"]["timestamp_utc"] = timestampStr;
 
-    jsonData["gps"]["location"]["lat"] = gps.location.lat();
-    jsonData["gps"]["location"]["lng"] = gps.location.lng();
-
     // Optional fields:
-    // Data below still needs checking, but we can tolerate losing them.
+    if (gps.location.isValid())
+    {
+        jsonData["gps"]["location"]["lat"] = roundN(gps.location.lat(), 6);
+        jsonData["gps"]["location"]["lng"] = roundN(gps.location.lng(), 6);
+    }
     if (gps.speed.isValid())
-        jsonData["gps"]["speed_kmh"] = gps.speed.kmph();
+        jsonData["gps"]["speed_kmh"] = roundN(gps.speed.kmph(), 1);
     if (gps.course.isValid())
-        jsonData["gps"]["course_deg"] = gps.course.deg();
+        jsonData["gps"]["course_deg"] = roundN(gps.course.deg(), 1);
     if (gps.satellites.isValid())
         jsonData["gps"]["num_satellites"] = gps.satellites.value();
     if (gps.hdop.isValid())
-        jsonData["gps"]["hdop"] = gps.hdop.hdop();
+        jsonData["gps"]["hdop"] = roundN(gps.hdop.hdop(), 2);
 
     return serializeJson(jsonData, output, outputSize) > 0;
+}
+
+// Ref: https://arduinojson.org/v6/how-to/configure-the-serialization-of-floats/
+static inline double roundN(double value, int places)
+{
+    // Up to 6 places (1.0 -> no decimal, 10.0 -> 1 place,...)
+    static const double factors[] = {1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0};
+    return (value >= 0.0)
+               ? (int)(value * factors[places] + 0.5) / factors[places]
+               : (int)(value * factors[places] - 0.5) / factors[places];
 }
