@@ -11,9 +11,8 @@
 // TODO: Micro SIM card free trial
 // TODO: Introduce auth and encryption to MQTT comm
 // TODO: Resolve RX pin issue (change gps baud rate to 9600)
-// TODO: Decide internet data x historical data (send invalid data? send outdated data? If yes, Use queue to buffer unsent messages.)
+// TODO: Decide internet data x historical data (send outdated data? If yes, Use queue to buffer unsent messages.)
 // TODO: Remove ArduinoJson
-// TODO: Watchdog
 
 #include <Arduino.h>
 #include "secrets.h"
