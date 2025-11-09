@@ -4,6 +4,7 @@
  * https://www.emqx.com/en/blog/esp8266-connects-to-the-public-mqtt-broker
  * https://tttapa.github.io/ESP8266/Chap07%20-%20Wi-Fi%20Connections.html
  * http://www.pequenosprojetos.com.br/rastreador-gps-sim800l-e-esp8266-node-mcu/
+ * https://stuartsprojects.github.io/2024/09/21/How-not-to-read-a-GPS.html
  */
 
 // TODO: Test SIM800L
@@ -12,8 +13,6 @@
 // TODO: Resolve RX pin issue (change gps baud rate to 9600)
 // TODO: Decide internet data x historical data (send invalid data? send outdated data? If yes, Use queue to buffer unsent messages.)
 // TODO: Remove ArduinoJson
-// TODO: OTA uploads
-// TODO: Reuse timestamp build in check function
 // TODO: Watchdog
 
 #include <Arduino.h>
@@ -45,7 +44,6 @@ static const int GPS_BAUD = 115200; // Do NOT use 9600 baud rate, only 115200 wo
 char DEVICE_ID[32];
 
 #define DEBUG 0
-
 #if DEBUG
 #define DEBUG_PRINT(x) Serial.print(x)
 #define DEBUG_PRINTLN(x) Serial.println(x)
@@ -58,8 +56,8 @@ char DEVICE_ID[32];
 void checkMQTT();
 void checkWiFi();
 bool buildPayload(char *output, size_t outputSize);
+bool buildTimestamp(char *output, size_t outputSize);
 static inline double roundN(double value, int places);
-bool isGPSTimestampValid();
 
 void setup()
 {
@@ -79,11 +77,15 @@ void setup()
 
 void loop()
 {
-    // NOTE: Keep all network tasks non-blocking (for OTA, MQTT, and WiFi reconnect to work reliably)
+    /* NOTE: Keep all tasks non-blocking (for OTA, MQTT, and WiFi reconnect to work reliably),
+     * that means no while loops, since watchdog needs constant feed.
+     * It gets it through the end of each loop() iteration
+     */
+
     checkWiFi();
     checkMQTT();
 
-    while (Serial.available())
+    while (Serial.available() > 0)
     {
         char c = Serial.read();
         gps.encode(c);
@@ -96,11 +98,6 @@ void loop()
 
     if (!intervalHasPassed)
     {
-        return;
-    }
-    if (!isGPSTimestampValid())
-    {
-        DEBUG_PRINTLN("Invalid timestamp, skipping payload build.");
         return;
     }
 
@@ -179,10 +176,59 @@ void checkMQTT()
 
 bool buildPayload(char *output, size_t outputSize)
 {
+    /* Two important notes for checking data:
+     * 1. https://github.com/mikalhart/TinyGPSPlus/issues/107: isValid() does not really mean valid data.
+     * 2. https://forum.arduino.cc/t/tinygpsplus-isupdated-qustion/1233296: isUpdated() indicates whether the object’s value has been updated/read (not necessarily changed) since the last time you queried it.
+     */
     jsonData.clear();
 
+    jsonData["device"]["id"] = DEVICE_ID;
+
     char timestampStr[32];
-    snprintf(timestampStr, sizeof(timestampStr), "%04u-%02u-%02uT%02u:%02u:%02uZ",
+    if (!buildTimestamp(timestampStr, sizeof(timestampStr)))
+    {
+        DEBUG_PRINTLN("Invalid timestamp, skipping payload build.");
+        return false;
+    }
+    jsonData["gps"]["timestamp_utc"] = timestampStr;
+
+    // Optional fields:
+    if (gps.location.isValid() && gps.location.isUpdated())
+    {
+        jsonData["gps"]["location"]["lat"] = roundN(gps.location.lat(), 6);
+        jsonData["gps"]["location"]["lng"] = roundN(gps.location.lng(), 6);
+    }
+    if (gps.speed.isValid() && gps.speed.isUpdated())
+        jsonData["gps"]["speed_kmh"] = roundN(gps.speed.kmph(), 1);
+    if (gps.course.isValid() && gps.course.isUpdated())
+        jsonData["gps"]["course_deg"] = roundN(gps.course.deg(), 1);
+    if (gps.satellites.isValid() && gps.satellites.isUpdated())
+        jsonData["gps"]["num_satellites"] = gps.satellites.value();
+    if (gps.hdop.isValid() && gps.hdop.isUpdated())
+        jsonData["gps"]["hdop"] = roundN(gps.hdop.hdop(), 2);
+
+    return serializeJson(jsonData, output, outputSize) > 0;
+}
+
+bool buildTimestamp(char *output, size_t outputSize)
+{
+    // With valid timestamp we can study where gps failed.
+    /* NOTE: TinyGPS does internal timestamp prediction when no gps readings are available (we'll use those predictions).
+     * Those predictions do not pass isValid()
+     */
+
+    // 1. Check if date and time have values inside basic ranges
+    if (!(gps.date.year() >= 2025 &&
+          gps.date.month() >= 1 && gps.date.month() <= 12 &&
+          gps.date.day() >= 1 && gps.date.day() <= 31 &&
+          gps.time.hour() < 24 &&
+          gps.time.minute() < 60 &&
+          gps.time.second() < 60))
+        return false;
+
+    static char lastTimestamp[32] = "";
+    // create currentTimestamp
+    snprintf(output, outputSize, "%04u-%02u-%02uT%02u:%02u:%02uZ",
              gps.date.year(),
              gps.date.month(),
              gps.date.day(),
@@ -190,25 +236,13 @@ bool buildPayload(char *output, size_t outputSize)
              gps.time.minute(),
              gps.time.second());
 
-    jsonData["device"]["id"] = DEVICE_ID;
-    jsonData["gps"]["timestamp_utc"] = timestampStr;
+    // 2. Check if date and time was updated
+    // isUpdated() does not check if value has changed and only works for non-predicted values
+    if (strcmp(lastTimestamp, output) == 0)
+        return false;
 
-    // Optional fields:
-    if (gps.location.isValid())
-    {
-        jsonData["gps"]["location"]["lat"] = roundN(gps.location.lat(), 6);
-        jsonData["gps"]["location"]["lng"] = roundN(gps.location.lng(), 6);
-    }
-    if (gps.speed.isValid())
-        jsonData["gps"]["speed_kmh"] = roundN(gps.speed.kmph(), 1);
-    if (gps.course.isValid())
-        jsonData["gps"]["course_deg"] = roundN(gps.course.deg(), 1);
-    if (gps.satellites.isValid())
-        jsonData["gps"]["num_satellites"] = gps.satellites.value();
-    if (gps.hdop.isValid())
-        jsonData["gps"]["hdop"] = roundN(gps.hdop.hdop(), 2);
-
-    return serializeJson(jsonData, output, outputSize) > 0;
+    strcpy(lastTimestamp, output);
+    return true;
 }
 
 // Ref: https://arduinojson.org/v6/how-to/configure-the-serialization-of-floats/
@@ -219,47 +253,4 @@ static inline double roundN(double value, int places)
     return (value >= 0.0)
                ? (int)(value * factors[places] + 0.5) / factors[places]
                : (int)(value * factors[places] - 0.5) / factors[places];
-}
-
-bool isGPSTimestampValid()
-{
-    // https://github.com/mikalhart/TinyGPSPlus/issues/107: isValid() does not really mean valid data.
-    // With valid timestamp we can study where gps failed.
-    /* NOTE: TinyGPS does internal timestamp prediction when no gps readings are available (we'll use those predictions).
-     * Those predictions do not pass isValid()
-     */
-
-    // //  1. Check if date and time are valid (not entirely reliable, see the link above)
-    // if (!gps.date.isValid() || !gps.time.isValid())
-    //     return false;
-
-    // 2. Check for default timestamp pattern (sometimes isValid() returns true for this)
-    if (gps.date.year() == 2000 && gps.date.month() == 0 && gps.date.day() == 0)
-        return false;
-
-    // 3. Check if date and time have values inside basic ranges
-    if (!(gps.date.year() >= 2025 &&
-          gps.date.month() >= 1 && gps.date.month() <= 12 &&
-          gps.date.day() >= 1 && gps.date.day() <= 31 &&
-          gps.time.hour() < 24 &&
-          gps.time.minute() < 60 &&
-          gps.time.second() < 60))
-        return false;
-
-    static char lastTimestamp[32] = "";
-    char currentTimestamp[32];
-    snprintf(currentTimestamp, sizeof(currentTimestamp), "%04u-%02u-%02uT%02u:%02u:%02uZ",
-             gps.date.year(),
-             gps.date.month(),
-             gps.date.day(),
-             gps.time.hour(),
-             gps.time.minute(),
-             gps.time.second());
-
-    // 4. Check if date and time was updated (isUpdated() only works for non-predicted values)
-    if (strcmp(lastTimestamp, currentTimestamp) == 0)
-        return false;
-
-    strcpy(lastTimestamp, currentTimestamp);
-    return true;
 }
