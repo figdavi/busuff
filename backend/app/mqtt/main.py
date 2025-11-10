@@ -1,16 +1,15 @@
 import json
-import random
 from typing import Any, Literal
 
-import paho.mqtt.client as mqtt
-from paho.mqtt.enums import CallbackAPIVersion
-from paho.mqtt.properties import Properties
+import paho.mqtt.client as mqttc
+import paho.mqtt.reasoncodes as mqttrc
+import paho.mqtt.properties as mqttprop
+import paho.mqtt.enums as mqtte
 
-
+# https://eclipse.dev/paho/files/paho.mqtt.python/html/client.html
 # https://github.com/eclipse-paho/paho.mqtt.python?tab=readme-ov-file#usage-and-api
-# https://github.com/eclipse-paho/paho.mqtt.python/blob/master/examples/client_sub.py
+# https://www.emqx.com/en/blog/how-to-use-mqtt-in-python
 
-# TODO: add broker and topics to .env, share with backend and sensors
 # TODO: Update to MQTTv5 (If possible)
 # TODO: Validate data
 
@@ -18,16 +17,16 @@ broker = "broker.hivemq.com"
 port = 1883
 topic = "mqtt_iot_123321/busuff"
 transport: Literal["tcp", "websockets", "unix"] = "tcp"
-protocol = mqtt.MQTTv311
+protocol = mqttc.MQTTv311
 
 
-def connect_mqtt() -> mqtt.Client:
+def connect_mqtt() -> mqttc.Client:
     def on_connect(
-        client: mqtt.Client,
+        client: mqttc.Client,
         userdata: Any,
-        flags: mqtt.ConnectFlags,
-        reason_code: str,
-        properties: Properties,
+        flags: mqttc.ConnectFlags,
+        reason_code: mqttrc.ReasonCode,
+        properties: mqttprop.Properties | None,
     ):
         if reason_code == 0:
             print("Connected to MQTT Broker!")
@@ -40,19 +39,18 @@ def connect_mqtt() -> mqtt.Client:
     # but note that the client id must be unique on the broker. Leaving the
     # client id parameter empty will generate a random id for you.
 
-    client = mqtt.Client(
+    client = mqttc.Client(
         transport=transport,
         protocol=protocol,
-        callback_api_version=CallbackAPIVersion.VERSION2,
+        callback_api_version=mqtte.CallbackAPIVersion.VERSION2,
     )
-    # client.username_pw_set(username, password)
     client.on_connect = on_connect
     client.connect(broker, port)
     return client
 
 
-def subscribe(client: mqtt.Client):
-    def on_message(client: mqtt.Client, userdata: Any, msg: mqtt.MQTTMessage):
+def subscribe(client: mqttc.Client):
+    def on_message(client: mqttc.Client, userdata: Any, msg: mqttc.MQTTMessage):
         print(f"From topic: '{msg.topic}', message: ")
         try:
             data = json.loads(msg.payload.decode())
