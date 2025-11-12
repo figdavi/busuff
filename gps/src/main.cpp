@@ -17,6 +17,9 @@
 #include <Arduino.h>
 #include "secrets.h"
 
+static const int WIFI_LED = D1;
+static const int MQTT_LED = D2;
+
 #include <TinyGPS++.h>
 TinyGPSPlus gps;
 
@@ -60,12 +63,18 @@ static inline double roundN(double value, int places);
 
 void setup()
 {
+    // HIGH == Disconnected
+    pinMode(WIFI_LED, OUTPUT);
+    pinMode(MQTT_LED, OUTPUT);
+    digitalWrite(WIFI_LED, HIGH);
+    digitalWrite(MQTT_LED, HIGH);
+
     snprintf(DEVICE_ID, sizeof(DEVICE_ID), "bus_%u", ESP.getChipId());
 
     // gpsSerial.begin(GPS_BAUD);
     Serial.begin(GPS_BAUD);
 
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    WiFi.begin(HOTSPOT_SSID, HOTSPOT_PASS);
 
     DEBUG_PRINT("IP address: ");
     DEBUG_PRINTLN(WiFi.localIP());
@@ -135,6 +144,7 @@ void checkWiFi()
             WiFi.reconnect();
         }
         wasConnected = false;
+        digitalWrite(WIFI_LED, HIGH);
     }
     else if (!wasConnected)
     {
@@ -142,6 +152,7 @@ void checkWiFi()
         DEBUG_PRINT("IP: ");
         DEBUG_PRINTLN(WiFi.localIP());
         wasConnected = true;
+        digitalWrite(WIFI_LED, LOW);
     }
 }
 
@@ -160,6 +171,7 @@ void checkMQTT()
             mqttClient.connect(DEVICE_ID);
         }
         wasConnected = false;
+        digitalWrite(MQTT_LED, HIGH);
     }
     else
     {
@@ -167,6 +179,7 @@ void checkMQTT()
         {
             DEBUG_PRINTLN("MQTT connected!");
             wasConnected = true;
+            digitalWrite(MQTT_LED, LOW);
         }
         // Keep connection alive
         mqttClient.loop();
