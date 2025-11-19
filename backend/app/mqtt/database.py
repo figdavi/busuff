@@ -19,7 +19,7 @@ SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 
 
-# TABELA LeituraGPS
+# DEFINIÇÃO DA TABELA LeituraGPS
 class LeituraGPS(Base):
     __tablename__ = "leituras_gps"
 
@@ -34,7 +34,7 @@ class LeituraGPS(Base):
     hdop = Column(Float)
 
 
-# Cria as tabelas se não existirem,  importante garantir que a tabela exista antes de inserir.
+# Cria as tabelas se não existirem,  importante para garantir que a tabela exista antes de inserir.
 Base.metadata.create_all(engine)
 
 # FUNÇÃO AUXILIAR PARA SALVAR UMA LEITURA JSON
