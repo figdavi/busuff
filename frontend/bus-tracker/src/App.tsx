@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import './App.css';
 import { useMqtt } from './hooks/useMQTT';
 
 function App() {
@@ -19,20 +19,19 @@ function App() {
   }, [data]);
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Barra de status simples */}
-      <div style={{ padding: '10px', background: '#222', color: '#fff', fontFamily: 'sans-serif' }}>
+    <div className="app-container">
+      
+      <div className="status-bar">
         <strong>Status:</strong> {status} | 
         <strong> Satélites:</strong> {data?.gps.num_satellites ?? 0} | 
         <strong> Vel:</strong> {data?.gps.speed_kmh ?? 0} km/h
       </div>
 
-      <MapContainer center={position} zoom={15} style={{ flex: 1 }}>
+      <MapContainer center={position} zoom={15} className="map-wrapper">
         <TileLayer
           attribution='&copy; OpenStreetMap contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {/* O Marcador agora usa a posição dinâmica */}
         <Marker position={position}>
           <Popup>
             Estou aqui!<br />
