@@ -1,44 +1,26 @@
-import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import './App.css';
+import { useEffect, useState } from 'react'; 
 import { useMqtt } from './hooks/useMQTT';
+import { InfoPanel } from './components/InfoPanel';
+import { BusMap } from './components/BusMap';
+import 'leaflet/dist/leaflet.css';
+import './App.css';
 
 function App() {
   const { data, status } = useMqtt();
-
-  // Começamos com uma posição padrão (UFF de Rio das Ostras) caso o GPS ainda não tenha enviado nada
+  
+  // (Posição inicial: UFF Rio das Ostras)
   const [position, setPosition] = useState<[number, number]>([-22.505253, -41.9206433]);
 
-  // Sempre que chegar um dado novo (data), atualizamos a posição
   useEffect(() => {
     if (data && data.gps.location) {
-      // O Leaflet usa [lat, lng]
-      const newPos: [number, number] = [data.gps.location.lat, data.gps.location.lng];
-      setPosition(newPos);
+      setPosition([data.gps.location.lat, data.gps.location.lng]);
     }
   }, [data]);
 
   return (
     <div className="app-container">
-      
-      <div className="status-bar">
-        <strong>Status:</strong> {status} | 
-        <strong> Satélites:</strong> {data?.gps.num_satellites ?? 0} | 
-        <strong> Vel:</strong> {data?.gps.speed_kmh ?? 0} km/h
-      </div>
-
-      <MapContainer center={position} zoom={15} className="map-wrapper">
-        <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker position={position}>
-          <Popup>
-            Estou aqui!<br />
-            Atualizado em: {data?.gps.timestamp_utc}
-          </Popup>
-        </Marker>
-      </MapContainer>
+      <InfoPanel status={status} data={data} />
+      <BusMap position={position} data={data} />
     </div>
   );
 }
