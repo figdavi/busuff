@@ -9,7 +9,7 @@ jsonData = dict[str, dict[str, str | int]]
 # CONFIGURAÇÃO DO BANCO
 DB_USER = "postgres"
 DB_PASSWORD = "1234"
-DB_HOST = "localhost"
+DB_HOST = "db"
 DB_PORT = "5432"
 DB_NAME = "projeto_gps"
 DB_DRIVER = "postgresql+psycopg2"

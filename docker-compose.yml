@@ -1,4 +1,21 @@
 services:
+  #   api:
+  #     build: ./backend
+  #     command:
+  #     volumes:
+  #       - ./backend:/app
+  #     depends_on:
+  #       - db
+
+  mqtt-subscriber:
+    build: ./backend
+    command: python3 -u -m app.mqtt.main
+    working_dir: /app # for dev only
+    volumes:
+      - ./backend:/app # for dev only
+    depends_on:
+      - db
+
   db:
     image: postgres:17
     container_name: postgres-db
@@ -11,3 +28,6 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
