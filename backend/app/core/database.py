@@ -3,6 +3,9 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from datetime import datetime
 from typing import Generator
 
+# Types
+jsonData = dict[str, dict[str, str | int]]
+
 # CONFIGURAÇÃO DO BANCO
 DB_USER = "postgres"
 DB_PASSWORD = "1234"
@@ -37,7 +40,7 @@ Base.metadata.create_all(engine)
 
 
 # FUNÇÃO AUXILIAR PARA SALVAR UMA LEITURA JSON
-def salvar_leitura(json_data: dict):
+def salvar_leitura(json_data: jsonData) -> None:
     # Cria uma nova sessão a cada chamada da função para gerenciamento seguro
     session = SessionLocal()
     try:

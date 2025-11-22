@@ -44,6 +44,3 @@ __fastapi_cache__/
 # GPS code
 .pio
 secrets.h
-
-# Others
-private_data.json

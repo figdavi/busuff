@@ -9,3 +9,4 @@ python -m app.mqtt.main
 ## TODO
 
 - [ ] Move db credentials do .env file
+- [ ] Switch to psycopg2 non-binary
