@@ -3,7 +3,7 @@ import '../style/DashboardScreen.css';
 import { RouteSelectionModal } from './RouteSelectionModal';
 import { RouteCard } from './RouteCard';
 import type { RouteConfig } from '../types';
-import { List, Plus } from '@phosphor-icons/react';
+import { ListIcon, PlusIcon } from '@phosphor-icons/react';
 
 interface DashboardScreenProps {
   onSelectRoute: () => void;
@@ -39,7 +39,7 @@ export function DashboardScreen({ onSelectRoute, myRoutes, onUpdateRoutes }: Das
       <header className="dashboard-header">
         
         <button className="hamburger-btn" aria-label="Menu">
-          <List size={28} color="#fff" weight="bold" />
+          <ListIcon size={28} color="#fff" weight="bold" />
         </button>
 
         <div className="header-brand">
@@ -56,7 +56,7 @@ export function DashboardScreen({ onSelectRoute, myRoutes, onUpdateRoutes }: Das
         
         {/* Botão de abrir o modal */}
         <button className="new-route-btn" onClick={() => setShowModal(true)}>
-          <Plus size={20} weight="bold" style={{ marginRight: '5px' }} />
+          <PlusIcon size={20} weight="bold" style={{ marginRight: '5px' }} />
           Nova rota
         </button>
 

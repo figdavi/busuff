@@ -1,4 +1,5 @@
 import '../style/RouteCard.css';
+import { CheckIcon, PlusIcon } from '@phosphor-icons/react';
 import type { RouteConfig } from '../types';
 
 interface RouteCardProps {
@@ -72,7 +73,11 @@ export function RouteCard({
               onAction && onAction();
             }}
           >
-            {isSelected ? '✓' : '+'}
+            {isSelected ? (
+              <CheckIcon size={20} weight="bold" />
+            ) : (
+              <PlusIcon size={20} weight="bold" />
+            )}
           </button>
         )}
       </div>

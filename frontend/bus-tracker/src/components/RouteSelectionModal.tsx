@@ -10,7 +10,7 @@ const AVAILABLE_ROUTES: RouteConfig[] = [
     id: '1',
     origin: 'Macaé',
     destination: 'UFF - Rio das Ostras',
-    timeRange: '07:00 - 09:00',
+    timeRange: '07:00 - 09:00 / 16:00 - 18:00',
     days: ['SEG', 'TER', 'QUA', 'QUI', 'SEX']
   }
 ];
