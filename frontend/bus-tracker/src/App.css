@@ -75,3 +75,74 @@
     display: none !important;
   }
 }
+
+/* --- TELA INICIAL --- */
+
+.home-container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #0F62AC;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  font-family: sans-serif;
+}
+
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem; /* Espaço entre logo, texto e botão */
+  animation: fadeIn 1s ease-in; /* Efeito suave ao abrir */
+}
+
+.home-logo {
+  max-width: 150px;
+  height: auto;
+}
+
+.text-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.university-name {
+  font-size: 1.2rem;
+  font-weight: 400;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.app-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.start-button {
+  margin-top: 2rem;
+  padding: 12px 30px;
+  background-color: white;
+  color: #005c9e;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.start-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* Animação simples de entrada */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
