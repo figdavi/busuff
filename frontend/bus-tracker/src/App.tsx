@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
-import type { RouteConfig } from './types';
-
-// Componentes
+import  type { RouteConfig } from './types';
 import { useMqtt } from './hooks/useMQTT';
+import { CheckCircleIcon } from '@phosphor-icons/react';
+
+// Imports dos componentes
 import { InfoPanel } from './components/InfoPanel';
 import { BusMap } from './components/BusMap';
 import { BeginScreen } from './components/BeginScreen';
 import { DashboardScreen } from './components/DashboardScreen';
 
-function App() {
 
+function App() {
   const [currentScreen, setCurrentScreen] = useState<'begin' | 'dashboard' | 'map'>('begin');
   const [myRoutes, setMyRoutes] = useState<RouteConfig[]>([]);
-
-  // Lógica do MQTT (por padrão fica próximo da UFF Rio das Ostras)
   const { data, status } = useMqtt();
   const [position, setPosition] = useState<[number, number]>([-22.505253, -41.9206433]);
 
@@ -25,8 +24,19 @@ function App() {
     }
   }, [data]);
 
-  // --- RENDERIZAÇÃO ---
+  // --- FUNÇÃO PARA MARCAR PRESENÇA ---
+  const handleMarkPresence = () => {
+    // Por enquanto usamos um prompt nativo do navegador
+    const nome = window.prompt("Digite seu nome para confirmar presença na viagem:");
+    
+    if (nome) {
+      // AQUI ENTRARÁ A LÓGICA DE ENVIAR PARA O MQTT/BACKEND NO FUTURO
+      console.log(`Presença marcada para: ${nome}`);
+      alert(`✅ Presença confirmada, ${nome}! Boa viagem.`);
+    }
+  };
 
+  // --- RENDERIZAÇÃO ---
   if (currentScreen === 'begin') {
     return <BeginScreen onStart={() => setCurrentScreen('dashboard')} />;
   }
@@ -41,32 +51,25 @@ function App() {
     );
   }
 
-  // 3. Mapa (Onde vemos o ônibus)
+  // TELA DO MAPA
   return (
     <div className="app-container">
-      {/* Botão flutuante para voltar para a Dashboard */}
-      <button 
-        className="back-button"
-        onClick={() => setCurrentScreen('dashboard')}
-        style={{
-          position: 'absolute', 
-          top: 15, 
-          left: 15, 
-          zIndex: 1000, // Acima do mapa
-          background: 'white',
-          border: 'none',
-          padding: '8px 12px',
-          borderRadius: '4px',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          boxShadow: '0 2px 5px rgba(0,0,0,0.3)'
-        }}
-      >
-        ⬅ Voltar
-      </button>
+      
+      <InfoPanel 
+        status={status} 
+        data={data} 
+        onBack={() => setCurrentScreen('dashboard')}
+      />
 
-      <InfoPanel status={status} data={data} />
       <BusMap position={position} data={data} />
+
+      <div className="presence-container">
+        <button className="presence-btn" onClick={handleMarkPresence}>
+          <CheckCircleIcon size={24} weight="fill" />
+          Marcar presença
+        </button>
+      </div>
+
     </div>
   );
 }

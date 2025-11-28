@@ -1,43 +1,52 @@
 import type { BusDataPayload } from '../types';
+import { ArrowLeftIcon, WifiHighIcon, WifiSlashIcon, MapPinIcon, SpeedometerIcon } from '@phosphor-icons/react';
 
 interface InfoPanelProps {
   status: string;
   data: BusDataPayload | null;
+  onBack: () => void;
 }
 
-export function InfoPanel({ status, data }: InfoPanelProps) {
+export function InfoPanel({ status, data, onBack }: InfoPanelProps) {
   
-  const isMqttConnected = status === 'Conectado';
+  const isConnected = status === 'Conectado';
   const hasGpsSignal = data?.gps.location !== undefined;
 
-  let statusClass = '';
-
-  if (!isMqttConnected) {
-    statusClass = 'disconnected';
-  } else if (!hasGpsSignal && data) {
-    statusClass = 'no-signal';
-  } else {
-    statusClass = 'connected';
-  }
-
   return (
-    <div className={`status-bar ${statusClass}`}>
-      <div>
-        <strong>Status:</strong> {status}
-        
-        {isMqttConnected && !hasGpsSignal && data && (
-           <span className="alert-text">
-             Sem sinal do dispositivo ⚠️
-           </span>
-        )}
+    <div className="map-header">
+      <div className="header-left">
+        <button onClick={onBack} className="header-back-btn" aria-label="Voltar">
+          <ArrowLeftIcon size={24} weight="bold" />
+        </button>
+        <span className="header-title">Informações (Status)</span>
       </div>
 
-      {data && (
-        <div className="data-group">
-           <span> Sat: <strong>{data.gps.num_satellites ?? 0}</strong></span>
-           <span> Vel: <strong>{data.gps.speed_kmh ?? 0} km/h</strong></span>
+      <div className="header-stats">
+        
+        <div className="stat-item" title={status}>
+          {isConnected ? (
+            <WifiHighIcon size={20} weight="bold" color="#fff" />
+          ) : (
+            <WifiSlashIcon size={20} weight="bold" color="#ff8a80" />
+          )}
         </div>
-      )}
+
+        {/* Indicador de Velocidade (Só mostra se tiver dados) */}
+        {data && (
+          <div className="stat-item">
+            <SpeedometerIcon size={20} weight="bold" />
+            <span>{data.gps.speed_kmh ?? 0} km/h</span>
+          </div>
+        )}
+
+        {/* Alerta de GPS (Se tiver conectado mas sem sinal) */}
+        {isConnected && !hasGpsSignal && (
+          <div className="stat-badge warning">
+             <MapPinIcon size={16} weight="fill" />
+             <span>Sem GPS</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
