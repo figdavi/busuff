@@ -5,13 +5,16 @@
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <SoftwareSerial.h>
 
 // Pin Definitions
+static const int GPS_RX_PIN = D7;
 static const int WIFI_LED = D1;
 static const int MQTT_LED = D2;
 
 // Constants
-static const int GPS_BAUD = 115200;
+static const int GPS_BAUD = 9600;
+static const int SERIAL_BAUD = 115200;
 static const char MQTT_BROKER[] = "broker.hivemq.com";
 static const char MQTT_TOPIC[] = "mqtt_iot_123321/busuff";
 static const int MQTT_PORT = 1883;
@@ -20,6 +23,7 @@ static const unsigned long WIFI_RECONNECT_INTERVAL_MS = 5000;
 static const unsigned long MQTT_RECONNECT_INTERVAL_MS = 3000;
 
 // Global Objects
+SoftwareSerial gpsSerial(GPS_RX_PIN);
 TinyGPSPlus gps;
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
@@ -48,7 +52,8 @@ static inline double roundN(double value, int places);
 // Setup
 void setup()
 {
-    Serial.begin(GPS_BAUD);
+    gpsSerial.begin(GPS_BAUD);
+    Serial.begin(SERIAL_BAUD);
 
     // Led on HIGH == Disconnected
     pinMode(WIFI_LED, OUTPUT);
@@ -157,9 +162,9 @@ void checkMQTT()
 
 static inline void readGPS()
 {
-    while (Serial.available() > 0)
+    while (gpsSerial.available() > 0)
     {
-        gps.encode(Serial.read());
+        gps.encode(gpsSerial.read());
     }
 }
 
