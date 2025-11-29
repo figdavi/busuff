@@ -53,13 +53,13 @@ All messages follow this schema:
 
 ## Todo
 
-- [ ] Test SIM800L
-- [ ] Micro SIM card free trial
+- [ ] Add .env files in the root of the project for mqtt broker, topic, postgres, wifi credentials, ...; ref: https://github.com/fastapi/full-stack-fastapi-template/blob/master/.env
+- [ ] Send a different location only if value has changed enough (otherwise send the same last reading)
+- [ ] Check speed validation (neo6m when not moving may send 0-15km)
+- [ ] Add cap to postgres storage
+- [ ] Use timescaleDB or other postgres extension. Delete old data (if data is 30 days old, for example, since storage should be small for now).
 - [ ] Introduce auth and encryption to MQTT comm
-- [ ] Resolve RX pin issue (change gps baud rate to 9600)
 - [ ] Decide internet data x historical data (send outdated data? If yes, Use queue to buffer unsent messages.)
-- [ ] Remove ArduinoJson
-- [ ] Update this README
 - [ ] Make readGPS non-blocking
 - [ ] Remove hardcoded sizes
 - [ ] Use safer str functions alternatives (like strncpy, strncmp)
@@ -71,3 +71,4 @@ All messages follow this schema:
 - https://tttapa.github.io/ESP8266/Chap07%20-%20Wi-Fi%20Connections.html
 - http://www.pequenosprojetos.com.br/rastreador-gps-sim800l-e-esp8266-node-mcu/
 - https://stuartsprojects.github.io/2024/09/21/How-not-to-read-a-GPS.html
+- https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/station-examples.html
