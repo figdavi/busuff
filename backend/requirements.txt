@@ -3,3 +3,6 @@ paho-mqtt==2.1.0
 psycopg2-binary==2.9.11
 SQLAlchemy==2.0.44
 typing_extensions==4.15.0
+fastapi==0.110.0
+uvicorn==0.27.1
+websockets
