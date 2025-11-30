@@ -7,6 +7,8 @@ services:
   #     depends_on:
   #       - db
 
+
+# https://github.com/peter-evans/docker-compose-healthcheck
   db:
     image: postgres:17
     container_name: postgres-db
@@ -25,7 +27,6 @@ services:
       timeout: 3s
       retries: 5
 
-# https://github.com/peter-evans/docker-compose-healthcheck
   mqtt-subscriber:
     build: ./backend
     command: python3 -u -m app.mqtt.client
