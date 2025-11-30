@@ -1,12 +1,14 @@
 services:
-  #   api:
-  #     build: ./backend
-  #     command:
-  #     volumes:
-  #       - ./backend:/app
-  #     depends_on:
-  #       - db
-
+  api:
+    build: ./backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
 
 # https://github.com/peter-evans/docker-compose-healthcheck
   db:
