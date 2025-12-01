@@ -2,7 +2,13 @@
 
 ## How to run
 
-- Having Docker installed:
+### Configure credentials
+
+1. Write corresponding credentials in `.env.example`
+
+2. Rename `.env.example` to `.env`
+
+3. Having Docker installed, run:
 
 ```bash
 docker compose up --build
@@ -110,3 +116,10 @@ projeto_gps=# SELECT * FROM leituras_gps;
   }
 }
 ```
+
+## TODO
+
+- [ ] Use pydantic for config
+- [ ] Implement websockets on_message mqtt event
+- [ ] Switch to psycopg2 non-binary
+- [ ] Add better logging
