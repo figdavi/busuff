@@ -2,6 +2,8 @@ services:
   api:
     build: ./backend
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     volumes:
@@ -10,15 +12,17 @@ services:
       db:
         condition: service_healthy
 
-# https://github.com/peter-evans/docker-compose-healthcheck
+  # https://github.com/peter-evans/docker-compose-healthcheck
   db:
     image: postgres:17
     container_name: postgres-db
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: projeto_gps
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -32,6 +36,8 @@ services:
   mqtt-subscriber:
     build: ./backend
     command: python3 -u -m app.mqtt.client
+    env_file:
+      - .env
     working_dir: /app
     volumes:
       - ./backend:/app

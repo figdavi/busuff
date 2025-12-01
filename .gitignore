@@ -43,4 +43,7 @@ __fastapi_cache__/
 
 # GPS code
 .pio
+
+# Secrets
 secrets.h
+.env

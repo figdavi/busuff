@@ -2,17 +2,19 @@ from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from datetime import datetime
 from typing import Generator
+import os
 
 # Types
 jsonData = dict[str, dict[str, str | int]]
 
 # CONFIGURAÇÃO DO BANCO
-DB_USER = "postgres"
-DB_PASSWORD = "1234"
-DB_HOST = "db"
-DB_PORT = "5432"
-DB_NAME = "projeto_gps"
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = int(os.getenv("DB_PORT", 5432))
+DB_NAME = os.getenv("DB_NAME")
 DB_DRIVER = "postgresql+psycopg2"
+
 DATABASE_URL = f"{DB_DRIVER}://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 engine = create_engine(DATABASE_URL, echo=False)
