@@ -1,33 +1,47 @@
 services:
-  #   api:
-  #     build: ./backend
-  #     command:
-  #     volumes:
-  #       - ./backend:/app
-  #     depends_on:
-  #       - db
-
-  mqtt-subscriber:
+  api:
     build: ./backend
-    command: python3 -u -m app.mqtt.main
-    working_dir: /app # for dev only
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    env_file:
+      - .env
+    expose:
+      - "8000"
     volumes:
-      - ./backend:/app # for dev only
+      - ./backend:/app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
+    mqtt-subscriber:
+      build: ./backend
+      command: python3 -u -m app.mqtt.client
+      env_file:
+        - .env
+      working_dir: /app
+      volumes:
+        - ./backend:/app
+      depends_on:
+        db:
+          condition: service_healthy
+
+  # https://github.com/peter-evans/docker-compose-healthcheck
   db:
     image: postgres:17
     container_name: postgres-db
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: projeto_gps
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d projeto_gps"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   caddy:
     image: caddy:2.7
