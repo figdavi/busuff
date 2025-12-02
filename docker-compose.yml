@@ -12,7 +12,7 @@ services:
       db:
         condition: service_healthy
 
-    mqtt-subscriber:
+  mqtt-subscriber:
       build: ./backend
       command: python3 -u -m app.mqtt.client
       env_file:
@@ -43,6 +43,19 @@ services:
       timeout: 3s
       retries: 5
 
+  frontend:
+    build: ./frontend/bus-tracker  
+    container_name: bus-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/bus-tracker:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    # depends_on:
+    #   - api
+
   caddy:
     image: caddy:2.7
     ports:
@@ -51,7 +64,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
     depends_on:
       - api
-    #  - frontend
+      - frontend
 
 volumes:
   pgdata:
