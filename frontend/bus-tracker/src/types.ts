@@ -26,4 +26,5 @@ export interface RouteConfig {
   destination: string;
   timeRange: string; // Ex: "07:00 - 09:00 / 16:00 - 18:00"
   days: string[]; // Ex: ["SEG", "TER"]
+  deviceId: string;
 }

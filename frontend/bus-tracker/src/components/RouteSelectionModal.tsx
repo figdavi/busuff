@@ -4,23 +4,13 @@ import type { RouteConfig } from '../types';
 import { RouteCard } from './RouteCard';
 import '../style/RouteSelectionModal.css';
 
-// DADOS travados (A única rota disponível)
-const AVAILABLE_ROUTES: RouteConfig[] = [
-  {
-    id: '1',
-    origin: 'Macaé',
-    destination: 'UFF - Rio das Ostras',
-    timeRange: '07:00 - 09:00 / 16:00 - 18:00',
-    days: ['SEG', 'TER', 'QUA', 'QUI', 'SEX']
-  }
-];
-
 interface Props {
   onClose: () => void;
   onAddRoutes: (routes: RouteConfig[]) => void;
+  availableRoutes: RouteConfig[];
 }
 
-export function RouteSelectionModal({ onClose, onAddRoutes }: Props) {
+export function RouteSelectionModal({ onClose, onAddRoutes, availableRoutes }: Props) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const toggleRoute = (id: string) => {
@@ -33,7 +23,7 @@ export function RouteSelectionModal({ onClose, onAddRoutes }: Props) {
 
   const handleConfirm = () => {
     // Filtra as rotas completas baseadas nos IDs selecionados
-    const routesToAdd = AVAILABLE_ROUTES.filter(r => selectedIds.includes(r.id));
+    const routesToAdd = availableRoutes.filter(r => selectedIds.includes(r.id));
     onAddRoutes(routesToAdd);
   };
 
@@ -52,7 +42,7 @@ export function RouteSelectionModal({ onClose, onAddRoutes }: Props) {
       </div>
 
       <div className="modal-content">
-        {AVAILABLE_ROUTES.map(route => (
+        {availableRoutes.map(route => (
           <RouteCard 
             key={route.id}
             route={route}
