@@ -1,7 +1,7 @@
 import type { RouteConfig } from '../types';
 
 // URL do seu Backend Python (localhost ou AWS)
-const API_URL = 'http://localhost:8000'; 
+const API_URL = 'http://ec2-18-221-16-56.us-east-2.compute.amazonaws.com/api/'; 
 
 export const api = {
   // Busca as rotas do banco de dados

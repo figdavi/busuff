@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import './DashboardScreen.css';
+import '../style/DashboardScreen.css';
 import { RouteSelectionModal } from './RouteSelectionModal';
 import { RouteCard } from './RouteCard';
 import type { RouteConfig } from '../types';
