@@ -25,6 +25,7 @@ export function parseBusMessage(rawMessage: string): BusDataPayload | null {
         
         // Campos Opcionais: Usamos verificação defensiva
         speed_kmh: typeof parsed.gps.speed_kmh === 'number' ? parsed.gps.speed_kmh : 0,
+        course_deg: typeof parsed.gps.course_deg === 'number' ? parsed.gps.course_deg : 0,
         num_satellites: typeof parsed.gps.num_satellites === 'number' ? parsed.gps.num_satellites : 0,
         hdop: parsed.gps.hdop,
         

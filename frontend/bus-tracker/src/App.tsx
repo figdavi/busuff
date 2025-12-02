@@ -3,6 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import './App.css';
 import  type { RouteConfig } from './types';
 import { useMqtt } from './hooks/useMQTT';
+import { useUserLocation } from './hooks/useUserLocation';
 import { CheckCircleIcon } from '@phosphor-icons/react';
 
 // Imports dos componentes
@@ -17,6 +18,7 @@ function App() {
   const [myRoutes, setMyRoutes] = useState<RouteConfig[]>([]);
   const { data, status } = useMqtt();
   const [position, setPosition] = useState<[number, number]>([-22.505253, -41.9206433]);
+  const { userLocation, accuracy } = useUserLocation();
 
   useEffect(() => {
     if (data && data.gps.location) {
@@ -61,7 +63,12 @@ function App() {
         onBack={() => setCurrentScreen('dashboard')}
       />
 
-      <BusMap position={position} data={data} />
+      <BusMap 
+        position={position} 
+        data={data}
+        userLocation={userLocation}
+        userAccuracy={accuracy} 
+      />
 
       <div className="presence-container">
         <button className="presence-btn" onClick={handleMarkPresence}>
