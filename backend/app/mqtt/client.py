@@ -1,6 +1,6 @@
 import json
 from typing import Any, Literal
-from .database import salvar_leitura
+from app.core.database import salvar_leitura
 
 import paho.mqtt.client as mqttc
 import paho.mqtt.reasoncodes as mqttrc
@@ -18,7 +18,7 @@ broker = "broker.hivemq.com"
 port = 1883
 topic = "mqtt_iot_123321/busuff"
 transport: Literal["tcp", "websockets", "unix"] = "tcp"
-protocol = mqttc.MQTTv311
+protocol = mqttc.MQTTv5
 
 
 def connect_mqtt() -> mqttc.Client:
@@ -58,7 +58,7 @@ def subscribe(client: mqttc.Client):
             data = json.loads(msg.payload.decode())
             print(json.dumps(data, indent=4))
 
-            #Salva os dados no Banco
+            # Salva os dados no Banco
             salvar_leitura(data)
 
         except Exception as e:

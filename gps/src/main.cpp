@@ -5,13 +5,16 @@
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <SoftwareSerial.h>
 
 // Pin Definitions
+static const int GPS_RX_PIN = D7;
 static const int WIFI_LED = D1;
 static const int MQTT_LED = D2;
 
 // Constants
-static const int GPS_BAUD = 115200; // Do NOT use 9600 baud rate, only 115200 works.
+static const int GPS_BAUD = 9600;
+static const int SERIAL_BAUD = 115200;
 static const char MQTT_BROKER[] = "broker.hivemq.com";
 static const char MQTT_TOPIC[] = "mqtt_iot_123321/busuff";
 static const int MQTT_PORT = 1883;
@@ -20,6 +23,7 @@ static const unsigned long WIFI_RECONNECT_INTERVAL_MS = 5000;
 static const unsigned long MQTT_RECONNECT_INTERVAL_MS = 3000;
 
 // Global Objects
+SoftwareSerial gpsSerial(GPS_RX_PIN);
 TinyGPSPlus gps;
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
@@ -28,9 +32,8 @@ JsonDocument jsonData;
 // Device ID (unique per ESP8266)
 char DEVICE_ID[32];
 
-// Helper Macros for Debugging
-#define DEBUG 1
-#if DEBUG
+// Helper Macros for Debugging (defined in platformio.ini)
+#if LOG_LEVEL >= 1
 #define DEBUG_PRINT(x) Serial.print(x)
 #define DEBUG_PRINTLN(x) Serial.println(x)
 #else
@@ -49,7 +52,8 @@ static inline double roundN(double value, int places);
 // Setup
 void setup()
 {
-    Serial.begin(GPS_BAUD);
+    gpsSerial.begin(GPS_BAUD);
+    Serial.begin(SERIAL_BAUD);
 
     // Led on HIGH == Disconnected
     pinMode(WIFI_LED, OUTPUT);
@@ -59,7 +63,7 @@ void setup()
 
     snprintf(DEVICE_ID, sizeof(DEVICE_ID), "bus_%u", ESP.getChipId());
 
-    WiFi.begin(HOTSPOT_SSID, HOTSPOT_PASS);
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
     mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
 }
 
@@ -158,9 +162,9 @@ void checkMQTT()
 
 static inline void readGPS()
 {
-    while (Serial.available() > 0)
+    while (gpsSerial.available() > 0)
     {
-        gps.encode(Serial.read());
+        gps.encode(gpsSerial.read());
     }
 }
 
