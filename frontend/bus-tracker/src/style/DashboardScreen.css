@@ -1,0 +1,83 @@
+/* Container da tela inteira (fundo cinza claro igual à imagem) */
+.dashboard-container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #f0f2f5; /* Cinza bem clarinho */
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- HEADER --- */
+.dashboard-header {
+  background-color: #0F62AC; /* Azul UFF */
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: white;
+  gap: 20px;
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-logo-img {
+  height: 40px;
+  width: auto;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* --- BODY / BOTÃO --- */
+.dashboard-content {
+  flex: 1;
+  padding: 20px;
+  position: relative;
+}
+
+.new-route-btn {
+  background-color: #0091ea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px; 
+  font-size: 1rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: background-color 0.2s;
+}
+
+.new-route-btn:hover {
+  background-color: #007bb2;
+}
+
+.plus-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
