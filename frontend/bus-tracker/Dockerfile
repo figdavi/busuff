@@ -1,5 +1,5 @@
 # Usa uma imagem leve do Node.js (versão 18 ou 20)
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
 # Define a pasta de trabalho dentro do container
 WORKDIR /app
@@ -13,9 +13,5 @@ RUN npm install
 # Copia o restante do código do projeto para dentro do container
 COPY . .
 
-# Expõe a porta padrão do Vite
-EXPOSE 5173
-
-# Comando para rodar o projeto em modo desenvolvimento
-# O "--host" é OBRIGATÓRIO para o Docker conseguir acessar o navegador
-CMD ["npm", "run", "dev", "--", "--host"]
+# Build the application
+RUN npm run build
