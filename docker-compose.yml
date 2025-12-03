@@ -46,6 +46,7 @@ services:
   frontend:
     build: ./frontend/bus-tracker
     container_name: bus-frontend
+    command: npm run build
     volumes:
       - ./frontend/bus-tracker/dist:/app/dist
     environment:
