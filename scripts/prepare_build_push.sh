@@ -1,7 +1,7 @@
 #!/bin/bash
 # prepare_build_push.sh - Complete setup script for EC2
 
-# Assumes you have git (since you cloned this), chmod u+x prepare_build_push.sh and sudo ./prepare_build_push.sh
+# Assumes you have git (since you cloned this) and sudo ./prepare_build_push.sh
 
 set -e  # Exit on any error
 
