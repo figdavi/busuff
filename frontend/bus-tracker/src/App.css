@@ -195,27 +195,34 @@
   }
   
   .presence-container {
-    bottom: 20px;
+    bottom: 40px; /* Era 20px, subimos para 40px para dar respiro */
   }
   
   .presence-btn {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-    width: 90%;
-    justify-content: center;
+    padding: 12px 20px;
+    font-size: 1rem;
+    width: 85%; /* Um pouco menos largo */
     max-width: 300px;
+    /* Sombra mais forte para destacar do mapa */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4); 
+  }
+
+  /* O botão de mira sobe junto */
+  .recenter-btn {
+    bottom: 110px; /* 40px (botão) + 50px (altura dele) + 20px (espaço) */
+    right: 15px;
+    width: 45px;
+    height: 45px;
+  }
+
+  /* Ajuste no modal de rotas para não ficar colado na borda */
+  .new-route-btn {
+    bottom: 40px; /* Se ele for flutuante */
   }
 
   /* Esconde botões de zoom padrão para limpar a tela */
   .leaflet-control-zoom {
     display: none !important;
-  }
-
-  .recenter-btn {
-    bottom: 90px;
-    right: 15px;
-    width: 45px;
-    height: 45px;
   }
 }
 
