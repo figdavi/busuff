@@ -1,11 +1,11 @@
 #!/bin/bash
 # prepare_build_push.sh - Complete setup script for EC2
 
-# Assumes you have git (since you cloned this) and sudo ./prepare_build_push.sh
+# Assumes you have git (since you cloned this), modified .env file and sudo ./prepare_build_push.sh
 
 set -e  # Exit on any error
 
-echo "=== Starting EC2 Docker setup ==="
+echo "---Starting EC2 Docker setup---"
 
 # 1. System updates
 echo "Updating system..."
@@ -52,6 +52,41 @@ docker --version
 docker compose version
 
 cd ..
+
+# Check .env file
+if [ ! -f ".env" ]; then
+    echo "ERROR: .env file not found!"
+    echo "Please create a .env file with the following variables:"
+    echo ""
+    echo "DB_USER=postgres"
+    echo "DB_PASSWORD=your_password_here"
+    echo "DB_NAME=projeto_gps"
+    echo ""
+fi
+
+# Validate .env has required variables
+echo "Checking .env file contents..."
+REQUIRED_VARS=("DB_USER" "DB_PASSWORD" "DB_NAME")
+MISSING_VARS=()
+
+for var in "${REQUIRED_VARS[@]}"; do
+    if ! grep -q "^${var}=" .env; then
+        MISSING_VARS+=("$var")
+    fi
+done
+
+if [ ${#MISSING_VARS[@]} -gt 0 ]; then
+    echo "ERROR: .env file is missing required variables:"
+    for var in "${MISSING_VARS[@]}"; do
+        echo "  - $var"
+    done
+    echo ""
+    echo "Please add these to your .env file and run the script again."
+    exit 1
+fi
+
+echo ".env file looks good!"
+echo ""
 
 # 6. Try to run docker (might need sudo on first run)
 if docker run --rm hello-world &>/dev/null; then
