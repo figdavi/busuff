@@ -1,7 +1,7 @@
 #!/bin/bash
 # prepare_build_push.sh - Complete setup script for EC2
 
-# Assumes you have git (since you cloned this), modified .env file and sudo ./prepare_build_push.sh
+# First, modify .env file, cd scripts/ and sudo ./prepare_build_push.sh
 
 set -e  # Exit on any error
 
@@ -51,7 +51,7 @@ echo "Verifying Docker installation..."
 docker --version
 docker compose version
 
-cd ..
+cd .. # TODO: change to non relative path
 
 # Check .env file
 if [ ! -f ".env" ]; then

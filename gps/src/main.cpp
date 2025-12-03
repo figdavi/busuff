@@ -16,7 +16,7 @@ static const int MQTT_LED = D2;
 static const int GPS_BAUD = 9600;
 static const int SERIAL_BAUD = 115200;
 static const char MQTT_BROKER[] = "broker.hivemq.com";
-static const char MQTT_TOPIC[] = "mqtt_iot_123321/busuff";
+static const char MQTT_TOPIC[] = "busuff/route003/dev002";
 static const int MQTT_PORT = 1883;
 static const unsigned long MQTT_PUB_INTERVAL_MS = 5000;
 static const unsigned long WIFI_RECONNECT_INTERVAL_MS = 5000;
@@ -61,9 +61,12 @@ void setup()
     digitalWrite(WIFI_LED, HIGH);
     digitalWrite(MQTT_LED, HIGH);
 
-    snprintf(DEVICE_ID, sizeof(DEVICE_ID), "bus_%u", ESP.getChipId());
+    // PROVISÓRIO
+    snprintf(DEVICE_ID, sizeof(DEVICE_ID), "dev002");
 
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    // snprintf(DEVICE_ID, sizeof(DEVICE_ID), "bus_%u", ESP.getChipId());
+
+    WiFi.begin(HOTSPOT_SSID, HOTSPOT_PASS);
     mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
 }
 
