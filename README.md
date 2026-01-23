@@ -1,6 +1,6 @@
 # Busuff Tracker
 
-Busuff Tracker is a real-time bus localization system.It tracks buses using IoT GPS devices and display their positions live on a web map.
+Busuff Tracker is a real-time bus localization system. It tracks buses using IoT GPS devices and display their positions live on a web map.
 
 ## Demo
 
@@ -9,15 +9,24 @@ Busuff Tracker is a real-time bus localization system.It tracks buses using IoT 
     <img src="./images/map_print_medium_zoom.png" alt="Mobile live map with medium zoom screenshot" height="600px">
 </figure>
 
-<figure align="center">
-    <img src="./images/map_print_desktop.png" alt="Desktop live map screenshot" width="700px">
-</figure>
-
 ## How it works (simplified logic)
 
 <figure align="center">
     <img src="./images/basic_logic_diagram.png" alt="Desktop live map screenshot" width="500px">
 </figure>
+
+## Project Structure
+
+```bash
+.
+├── backend/        # API, MQTT client, database logic
+├── frontend/       # Web app (React + Vite)
+├── gps/            # Embedded firmware (ESP + GPS)
+├── scripts/        # Build and helper scripts
+├── docker-compose.yml
+├── Caddyfile
+└── README.md
+```
 
 ## How to run
 
@@ -52,7 +61,9 @@ docker compose up --build -d
 }
 ```
 
-### Exemplos
+## Examples
+
+### Example 1 (Full GPS Fix)
 
 ```json
 {
@@ -73,7 +84,9 @@ docker compose up --build -d
 }
 ```
 
-- Note: Se o gps não obter uma boa leitura de um (ou mais) campo opcional (marcado por "_OPTIONAL_"), por exemplo, localização e velocidade, o campo "location" e "speed_kmh" não existirão no envio. Segue um exemplo:
+### Example 2 (Partial GPS Fix)
+
+- **Note**: Fields marked as optional may be omitted if the GPS signal quality is insufficient.
 
 ```json
 {
