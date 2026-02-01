@@ -4,16 +4,17 @@ Busuff Tracker is a real-time bus localization system. It tracks buses using IoT
 
 ## Demo
 
-<figure style="display: flex; justify-content: center; align-items: center">
-    <img src="./images/map_print_max_zoom.png" alt="Mobile live map with maximum zoom screenshot" height="600px">
-    <img src="./images/map_print_medium_zoom.png" alt="Mobile live map with medium zoom screenshot" height="600px">
-</figure>
+<p align="center">
+    <img src="./readme_files/map_print_max_zoom.png" alt="Mobile live map with maximum zoom screenshot" height="600px">
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <img src="./readme_files/map_print_medium_zoom.png" alt="Mobile live map with medium zoom screenshot" height="600px">
+</p>
 
 ## How it works (simplified logic)
 
-<figure align="center">
-    <img src="./images/basic_logic_diagram.png" alt="Desktop live map screenshot" width="500px">
-</figure>
+<p align="center">
+    <img src="./readme_files/basic_logic_diagram.png" alt="Desktop live map screenshot" width="500px">
+</p>
 
 ## Project Structure
 
