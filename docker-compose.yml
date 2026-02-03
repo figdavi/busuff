@@ -67,3 +67,4 @@ services:
 
 volumes:
   pgdata:
+    name: pgdata # avoid automatic naming
