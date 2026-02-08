@@ -1,12 +1,12 @@
+# Backend
+
 https://github.com/fastapi/full-stack-fastapi-template/tree/master
 
-## How to run mqtt client
+## MQTT
 
-```bash
-# In backend/ folder, run:
-
-python -m app.mqtt.main
-```
+https://eclipse.dev/paho/files/paho.mqtt.python/html/client.html
+https://github.com/eclipse-paho/paho.mqtt.python?tab=readme-ov-file#usage-and-api
+https://www.emqx.com/en/blog/how-to-use-mqtt-in-python
 
 ## TODO
 

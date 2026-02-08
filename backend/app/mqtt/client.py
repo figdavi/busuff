@@ -1,15 +1,12 @@
 import json
 from typing import Any, Literal
-from app.core.database import salvar_leitura
+from app.crud import save_gps_reading
+from app.core.database import SessionLocal
 
 import paho.mqtt.client as mqttc
 import paho.mqtt.reasoncodes as mqttrc
 import paho.mqtt.properties as mqttprop
-import paho.mqtt.enums as mqtte
-
-# https://eclipse.dev/paho/files/paho.mqtt.python/html/client.html
-# https://github.com/eclipse-paho/paho.mqtt.python?tab=readme-ov-file#usage-and-api
-# https://www.emqx.com/en/blog/how-to-use-mqtt-in-python
+import paho.mqtt.enums as mqttenums
 
 # TODO: Update to MQTTv5 (If possible)
 # TODO: Validate data
@@ -44,7 +41,7 @@ def connect_mqtt() -> mqttc.Client:
     client = mqttc.Client(
         transport=transport,
         protocol=protocol,
-        callback_api_version=mqtte.CallbackAPIVersion.VERSION2,
+        callback_api_version=mqttenums.CallbackAPIVersion.VERSION2,
     )
     client.on_connect = on_connect
     client.connect(broker, port)
@@ -58,11 +55,10 @@ def subscribe(client: mqttc.Client):
             data = json.loads(msg.payload.decode())
             print(json.dumps(data, indent=4))
 
-            # Salva os dados no Banco
-            salvar_leitura(data)
+            with SessionLocal.begin() as session:
+                save_gps_reading(session, data)
 
         except Exception as e:
-            # Se houver erro na decodificação JSON OU no salvamento no banco
             print(f"Erro no processamento/salvamento da mensagem: {e}")
 
     # subscribe method of mqtt.Client
