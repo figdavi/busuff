@@ -7,7 +7,7 @@ http:// {
     
     # Static files
     handle {
-        root * /src/frontend
+        root * /srv
         try_files {path} /index.html
         file_server
     }

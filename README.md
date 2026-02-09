@@ -1,13 +1,10 @@
 # Busuff Tracker
 
-Busuff Tracker provides real-time bus localization by tracking GPS-equipped vehicles and displaying their live movements on a web interface. 
+Busuff Tracker provides real-time bus localization by tracking GPS-equipped vehicles and displaying their live movements on a web interface.
 
 # Demo
 
-
 https://github.com/user-attachments/assets/f9e4eed6-0db8-446c-b77f-82831b9043d1
-
-
 
 <p align="center">
     <img src="./readme_files/map_print_max_zoom.png" alt="Mobile live map with maximum zoom screenshot" height="600px">
@@ -28,7 +25,6 @@ https://github.com/user-attachments/assets/f9e4eed6-0db8-446c-b77f-82831b9043d1
 ├── backend/        # API, MQTT client, database logic
 ├── frontend/       # Web app (React + Vite)
 ├── gps/            # Embedded firmware (ESP + GPS)
-├── scripts/        # Build and helper scripts
 ├── docker-compose.yml
 ├── Caddyfile
 └── README.md
@@ -38,12 +34,24 @@ https://github.com/user-attachments/assets/f9e4eed6-0db8-446c-b77f-82831b9043d1
 
 1. Write corresponding credentials in `.env.example`
 
-2. Rename `.env.example` to `.env`
+2. Copy `.env.example` to `.env`
 
-3. Having Docker installed, run:
+### Dev
 
 ```bash
-docker compose up --build -d
+docker compose \
+  -f compose.yaml \
+  -f compose.dev.yaml \
+  up
+```
+
+### Prod
+
+```bash
+docker compose \
+  -f compose.yaml \
+  -f compose.prod.yaml \
+  up
 ```
 
 ## GPS data format (JSON)

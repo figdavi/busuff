@@ -1,0 +1,10 @@
+# frontend build
+FROM node:20-alpine AS frontend-build
+WORKDIR /frontend
+COPY frontend/bus-tracker .
+RUN npm ci && npm run build
+
+# caddy runtime
+FROM caddy:2.7
+COPY Caddyfile /etc/caddy/Caddyfile
+COPY --from=frontend-build /frontend/dist /srv

@@ -1,0 +1,19 @@
+services:
+  api:
+    expose:
+      - "8000"
+  mqtt-subscriber:
+  db:
+  caddy:
+    build:
+    context: .
+    dockerfile: Dockerfile.caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+    name: pgdata # avoid automatic naming

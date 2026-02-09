@@ -1,0 +1,27 @@
+services:
+  api:
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+
+  mqtt-subscriber:
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/bus-tracker:/app
+    depends_on:
+      - api
+
+  db:
+
+volumes:
+  pgdata:
+    name: pgdata # avoid automatic naming
