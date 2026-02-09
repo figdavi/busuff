@@ -1,10 +1,11 @@
 # GPS
+
 Firmware for the ESP8266 that reads GPS data from a NEO-6M module and publishes JSON messages to an MQTT broker.
 
 Two LEDs indicate connection states:
 
 - Wi-Fi LED: ON = disconnected, OFF = connected
-- MQTT LED: ON = disconnected, OFF = connected  
+- MQTT LED: ON = disconnected, OFF = connected
 
 ![Protoboard photo](images/protoboard_photo.jpeg)
 
@@ -14,7 +15,7 @@ Two LEDs indicate connection states:
 
 1. Write corresponding credentials in `./src/secrets.h.example`
 
-2. Rename `secrets.h.example` to `secrets.h`
+2. Copy (or rename) `secrets.h.example` to `secrets.h`
 
 ### Build and upload
 
@@ -65,6 +66,7 @@ All messages follow this schema:
 - [ ] Use safer str functions alternatives (like strncpy, strncmp)
 
 ## References
+
 - https://randomnerdtutorials.com/esp8266-nodemcu-neo-6m-gps-module-arduino/
 - https://arduinojson.org/
 - https://www.emqx.com/en/blog/esp8266-connects-to-the-public-mqtt-broker
