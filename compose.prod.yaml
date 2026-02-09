@@ -6,8 +6,8 @@ services:
   db:
   caddy:
     build:
-    context: .
-    dockerfile: Dockerfile.caddy
+      context: .
+      dockerfile: Dockerfile.caddy
     ports:
       - "80:80"
       - "443:443"
