@@ -1,7 +1,7 @@
 # from fastapi import APIRouter
 # from app.core.database import SessionDep
 
-# router = APIRouter(prefix="/presence", tags=["presence"])
+# router = APIRouter(prefix="/presence", tags=["presence"], dependencies=[], responses={404: {"description": "Not found"}},)
 
 
 # @router.post("/")

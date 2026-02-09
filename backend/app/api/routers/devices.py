@@ -4,7 +4,12 @@ from app.core.database import SessionDep
 from app.models import Device, DevicesOut
 
 
-router = APIRouter(prefix="/devices", tags=["devices"])
+router = APIRouter(
+    prefix="/devices",
+    tags=["devices"],
+    dependencies=[],
+    responses={404: {"description": "Not found"}},
+)
 
 
 @router.get("/", status_code=200, response_model=DevicesOut)
