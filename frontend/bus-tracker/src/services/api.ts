@@ -1,7 +1,6 @@
 import type { RouteConfig } from "../types";
 
-// URL do seu Backend Python (localhost ou AWS)
-const API_URL = "/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const api = {
   // Busca as rotas do banco de dados
@@ -9,14 +8,13 @@ export const api = {
     try {
       const response = await fetch(`${API_URL}/routes`);
       if (!response.ok) throw new Error("Erro ao buscar rotas");
-      const data = await response.json();
+      const jsonData = await response.json();
 
-      // Adaptador: O banco retorna "TimeRange", o front usa "timeRange"
-      return data.map((r: any) => ({
+      return jsonData.data.map((r: any) => ({
         id: r.id,
         origin: r.origin,
         destination: r.destination,
-        timeRange: r.TimeRange,
+        timeRange: r.time_range,
         days: r.days,
         deviceId: r.device_id, // Importante para o MQTT saber qual tópico ouvir
       }));
