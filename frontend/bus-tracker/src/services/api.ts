@@ -16,7 +16,7 @@ export const api = {
         destination: r.destination,
         timeRange: r.time_range,
         days: r.days,
-        deviceId: r.device_id, // Importante para o MQTT saber qual tópico ouvir
+        vehicleId: r.vehicle_id, // Importante para o MQTT saber qual tópico ouvir
       }));
     } catch (error) {
       console.error(error);
@@ -25,14 +25,14 @@ export const api = {
   },
 
   // Envia a presença para o banco
-  markPresence: async (userName: string, routeId: string, deviceId: string) => {
+  markPresence: async (userName: string, routeId: string, vehicleId: string) => {
     await fetch(`${API_URL}/presence`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         user_name: userName,
         route_id: routeId,
-        device_id: deviceId,
+        vehicle_id: vehicleId,
       }),
     });
   },
