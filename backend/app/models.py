@@ -10,9 +10,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, relationship, Mapped, mapped_column
 
-# TODO: switch data type declaration to SQLAlchemy 2.0 ORM
-# TODO: Redo db design
-
 
 # API models
 
