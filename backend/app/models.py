@@ -53,7 +53,6 @@ class VehicleOut(BaseOut):
     name: str
 
 
-# TODO: add count
 class VehiclesOut(BaseOut):
     data: list[VehicleOut]
 
@@ -81,14 +80,13 @@ class GPSReading(BaseORM):
     latitude: Mapped[float] = mapped_column(Float)
     longitude: Mapped[float] = mapped_column(Float)
     speed_kmh: Mapped[float] = mapped_column(Float)
-    course_deg: Mapped[float] = mapped_column(Float)  # TODO: remove course_deg
+    course_deg: Mapped[float] = mapped_column(Float)
     num_satellites: Mapped[int] = mapped_column(Integer)
     hdop: Mapped[float] = mapped_column(Float)
 
     vehicle = relationship("Vehicle")
 
 
-# TODO: https://gtfs.org/documentation/schedule/examples/routes-stops-trips/, create calendar following calendar.txt
 class Route(BaseORM):
     __tablename__ = "route"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)

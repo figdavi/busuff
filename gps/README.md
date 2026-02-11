@@ -52,19 +52,6 @@ All messages follow this schema:
 }
 ```
 
-## Todo
-
-- [ ] Add .env files in the root of the project for mqtt broker, topic, postgres, wifi credentials, ...; ref: https://github.com/fastapi/full-stack-fastapi-template/blob/master/.env
-- [ ] Send a different location only if value has changed enough (otherwise send the same last reading)
-- [ ] Check speed validation (neo6m when not moving may send 0-15km)
-- [ ] Add cap to postgres storage
-- [ ] Use timescaleDB or other postgres extension. Delete old data (if data is 30 days old, for example, since storage should be small for now).
-- [ ] Introduce auth and encryption to MQTT comm
-- [ ] Decide internet data x historical data (send outdated data? If yes, Use queue to buffer unsent messages.)
-- [ ] Make readGPS non-blocking
-- [ ] Remove hardcoded sizes
-- [ ] Use safer str functions alternatives (like strncpy, strncmp)
-
 ## References
 
 - https://randomnerdtutorials.com/esp8266-nodemcu-neo-6m-gps-module-arduino/

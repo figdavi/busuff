@@ -8,8 +8,6 @@ import paho.mqtt.reasoncodes as mqttrc
 import paho.mqtt.properties as mqttprop
 import paho.mqtt.enums as mqttenums
 
-# TODO: Update to MQTTv5 (If possible)
-# TODO: Validate data
 
 broker = "broker.hivemq.com"
 port = 1883
