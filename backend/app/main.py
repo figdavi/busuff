@@ -16,7 +16,7 @@ app = FastAPI(lifespan=lifespan, root_path="/api")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # TODO: Em produção, coloque o domínio da AWS
+    allow_origins=["*"],  # TODO: Colocar origins como .env var
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,31 +1,31 @@
 from sqlalchemy.orm import Session
-from app.models import Device, Route, GPSReadingCreate, GPSReading
+from app.models import Vehicle, Route, GPSReadingCreate, GPSReading
 
 
 def save_gps_reading(session: Session, gps_reading: GPSReadingCreate) -> None:
-    device = get_or_create_device(session, gps_reading.device_id)
+    vehicle = get_or_create_vehicle(session, gps_reading.vehicle_id)
     gps_reading_dict = gps_reading.model_dump()
-    gps_reading_db = GPSReading(**gps_reading_dict, device=device)
+    gps_reading_db = GPSReading(**gps_reading_dict, vehicle=vehicle)
 
     session.add(gps_reading_db)
 
 
-def get_or_create_device(
-    session: Session, device_id: str, device_name: str | None = None
+def get_or_create_vehicle(
+    session: Session, vehicle_id: str, vehicle_name: str | None = None
 ):
-    device = session.get(Device, device_id)
+    vehicle = session.get(Vehicle, vehicle_id)
 
-    if device is None:
-        device = Device(id=device_id, name=device_name or f"Device {device_id}")
-        session.add(device)
+    if vehicle is None:
+        vehicle = Vehicle(id=vehicle_id, name=vehicle_name or f"Vehicle {vehicle_id}")
+        session.add(vehicle)
 
-    return device
+    return vehicle
 
 
 def save_route(
     session: Session,
     route_id: str,
-    device_id: str,
+    vehicle_id: str,
     origin: str,
     destination: str,
     days: list[str],
@@ -33,7 +33,7 @@ def save_route(
 ) -> None:
     new_route = Route(
         id=route_id,
-        device_id=device_id,
+        vehicle_id=vehicle_id,
         origin=origin,
         destination=destination,
         timeRange=time_range,

@@ -58,7 +58,7 @@ docker compose \
 
 ```json
 {
-	"device": {
+	"vehicle": {
 		"id": string,
 	},
 	"gps": {
@@ -81,7 +81,7 @@ docker compose \
 
 ```json
 {
-    "device": {
+    "vehicle": {
         "id": "14757629"
     },
     "gps": {
@@ -104,7 +104,7 @@ docker compose \
 
 ```json
 {
-    "device": {
+    "vehicle": {
         "id": "14757629"
     },
     "gps": {

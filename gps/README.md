@@ -35,7 +35,7 @@ All messages follow this schema:
 
 ```json
 {
-    "device": {
+    "vehicle": {
         "id": string,
     },
     "gps": {

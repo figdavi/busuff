@@ -29,8 +29,8 @@ WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
 JsonDocument jsonData;
 
-// Device ID (unique per ESP8266)
-char DEVICE_ID[32];
+// VEHICLE ID (unique per ESP8266)
+char VEHICLE_ID[32];
 
 // Helper Macros for Debugging (defined in platformio.ini)
 #if LOG_LEVEL >= 1
@@ -61,10 +61,7 @@ void setup()
     digitalWrite(WIFI_LED, HIGH);
     digitalWrite(MQTT_LED, HIGH);
 
-    // PROVISÓRIO
-    snprintf(DEVICE_ID, sizeof(DEVICE_ID), "dev002");
-
-    // snprintf(DEVICE_ID, sizeof(DEVICE_ID), "bus_%u", ESP.getChipId());
+    snprintf(VEHICLE_ID, sizeof(VEHICLE_ID), "%u", ESP.getChipId());
 
     WiFi.begin(HOTSPOT_SSID, HOTSPOT_PASS);
     mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
@@ -145,7 +142,7 @@ void checkMQTT()
             lastAttempt = millis();
             DEBUG_PRINT("Trying to connect to MQTT broker: ");
             DEBUG_PRINTLN(MQTT_BROKER);
-            mqttClient.connect(DEVICE_ID);
+            mqttClient.connect(VEHICLE_ID);
         }
         wasConnected = false;
         digitalWrite(MQTT_LED, HIGH);
@@ -179,7 +176,7 @@ bool buildPayload(char *output, size_t outputSize)
      */
     jsonData.clear();
 
-    jsonData["device"]["id"] = DEVICE_ID;
+    jsonData["vehicle"]["id"] = VEHICLE_ID;
 
     char timestampStr[32];
     if (!buildTimestamp(timestampStr, sizeof(timestampStr)))

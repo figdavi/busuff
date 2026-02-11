@@ -1,7 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel
 from sqlalchemy import (
-    Column,
     Integer,
     String,
     Float,
@@ -9,7 +8,7 @@ from sqlalchemy import (
     ForeignKey,
     ARRAY,
 )
-from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy.orm import DeclarativeBase, relationship, Mapped, mapped_column
 
 # TODO: switch data type declaration to SQLAlchemy 2.0 ORM
 # TODO: Redo db design
@@ -23,7 +22,7 @@ class BaseOut(BaseModel):
 
 
 class GPSReadingCreate(BaseModel):
-    device_id: str
+    vehicle_id: str
     timestamp_utc: datetime
     latitude: float | None
     longitude: float | None
@@ -36,12 +35,12 @@ class GPSReadingCreate(BaseModel):
 class PresenceCreate(BaseModel):
     user_name: str
     route_id: str
-    device_id: str
+    vehicle_id: str
 
 
 class RouteOut(BaseOut):
     id: str
-    device_id: str
+    vehicle_id: str
     origin: str
     destination: str
     time_range: str
@@ -52,14 +51,14 @@ class RoutesOut(BaseOut):
     data: list[RouteOut]
 
 
-class DeviceOut(BaseOut):
+class VehicleOut(BaseOut):
     id: str
     name: str
 
 
 # TODO: add count
-class DevicesOut(BaseOut):
-    data: list[DeviceOut]
+class VehiclesOut(BaseOut):
+    data: list[VehicleOut]
 
 
 # DB models
@@ -69,45 +68,45 @@ class BaseORM(DeclarativeBase):
     pass
 
 
-class Device(BaseORM):
-    __tablename__ = "device"
-
-    id = Column(String(50), primary_key=True, unique=True, nullable=False)
-    name = Column(String(100))
+class Vehicle(BaseORM):
+    __tablename__ = "vehicle"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    name: Mapped[str] = mapped_column(String(50))
 
 
 class GPSReading(BaseORM):
     __tablename__ = "gps_reading"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    vehicle_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey("vehicle.id"), nullable=False
+    )
+    timestamp_utc: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    latitude: Mapped[float] = mapped_column(Float)
+    longitude: Mapped[float] = mapped_column(Float)
+    speed_kmh: Mapped[float] = mapped_column(Float)
+    course_deg: Mapped[float] = mapped_column(Float)  # TODO: remove course_deg
+    num_satellites: Mapped[int] = mapped_column(Integer)
+    hdop: Mapped[float] = mapped_column(Float)
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    device_id = Column(String(50), ForeignKey("device.id"), nullable=False)
-
-    timestamp_utc = Column(DateTime, nullable=False)
-    latitude = Column(Float)
-    longitude = Column(Float)
-    speed_kmh = Column(Float)
-    course_deg = Column(Float)
-    num_satellites = Column(Integer)
-    hdop = Column(Float)
-    # Permite acessar o objeto Device(leitura.device)
-    device = relationship("Device")
+    vehicle = relationship("Vehicle")
 
 
+# TODO: https://gtfs.org/documentation/schedule/examples/routes-stops-trips/, create calendar following calendar.txt
 class Route(BaseORM):
     __tablename__ = "route"
-    bd_id = Column(Integer, primary_key=True, autoincrement=True)
-    id = Column(String(50), nullable=False, unique=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    vehicle_id: Mapped[str] = mapped_column(
+        String(50), ForeignKey("vehicle.id"), nullable=False
+    )
 
-    device_id = Column(String(50), ForeignKey("device.id"), nullable=False)
+    origin: Mapped[str] = mapped_column(String(100), nullable=False)
+    destination: Mapped[str] = mapped_column(String(100), nullable=False)
 
-    origin = Column(String(150), nullable=False)
-    destination = Column(String(150), nullable=False)
+    # Ex (24hr format): start_time=06:00, end_time=09:00
+    start_time: Mapped[str] = mapped_column(String(5), nullable=False)
+    end_time: Mapped[str] = mapped_column(String(5), nullable=False)
 
-    time_range = Column(String(150), nullable=False)
+    # Ex: ["SEG", "TER"]
+    days: Mapped[list[str]] = mapped_column(ARRAY(String(3)), nullable=False)
 
-    # days é um array de strings (Ex: ["SEG", "TER"])
-    days = Column(ARRAY(String(150)), nullable=False)
-
-    # Permite acessar o objeto Device(leitura.device)
-    device = relationship("Device")
+    vehicle = relationship("Vehicle")

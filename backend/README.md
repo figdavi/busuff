@@ -12,6 +12,6 @@ https://www.emqx.com/en/blog/how-to-use-mqtt-in-python
 
 - [ ] Use pydantic for config
 - [ ] Implement websockets on_message mqtt event
-- [ ] Move db credentials do .env file
+- [x] Move db credentials do .env file
 - [ ] Switch to psycopg2 non-binary
 - [ ] Add better logging
