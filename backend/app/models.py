@@ -1,15 +1,6 @@
-from datetime import datetime
+from datetime import datetime, time
 from pydantic import BaseModel
-from sqlalchemy import (
-    Integer,
-    String,
-    Float,
-    DateTime,
-    ForeignKey,
-    ARRAY,
-    Table,
-    Column,
-)
+from sqlalchemy import Integer, String, Float, DateTime, ForeignKey, ARRAY, Index, Time
 from sqlalchemy.orm import DeclarativeBase, relationship, Mapped, mapped_column
 
 
@@ -81,24 +72,7 @@ class BaseORM(DeclarativeBase):
     pass
 
 
-# Ref: https://docs.sqlalchemy.org/en/21/orm/basic_relationships.html#many-to-many
-
-vehicle_route_association = Table(
-    "vehicle_route",
-    BaseORM.metadata,
-    Column(
-        "vehicle_id",
-        String(32),
-        ForeignKey("vehicle.id", ondelete="CASCADE"),
-        primary_key=True,
-    ),
-    Column(
-        "route_id",
-        Integer,
-        ForeignKey("route.id", ondelete="CASCADE"),
-        primary_key=True,
-    ),
-)
+# Ref: https://docs.sqlalchemy.org/en/21/orm/basic_relationships.html
 
 
 class Vehicle(BaseORM):
@@ -106,10 +80,7 @@ class Vehicle(BaseORM):
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
 
-    routes: Mapped[list["Route"]] = relationship(
-        secondary=vehicle_route_association, back_populates="vehicles"
-    )
-
+    routes: Mapped[list["Route"]] = relationship(back_populates="vehicles")
     positions: Mapped[list["Position"]] = relationship(
         back_populates="vehicle", cascade="all, delete-orphan"
     )
@@ -122,6 +93,7 @@ class Position(BaseORM):
     vehicle_id: Mapped[str] = mapped_column(
         String(32), ForeignKey("vehicle.id", ondelete="CASCADE"), nullable=False
     )
+    vehicle: Mapped["Vehicle"] = relationship(back_populates="positions")
 
     timestamp_utc: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     latitude: Mapped[float] = mapped_column(Float)
@@ -131,23 +103,24 @@ class Position(BaseORM):
     num_satellites: Mapped[int] = mapped_column(Integer)
     hdop: Mapped[float] = mapped_column(Float)
 
-    vehicle: Mapped["Vehicle"] = relationship(back_populates="positions")
+
+Index("ix_position_vehicle_timestamp", Position.vehicle_id, Position.timestamp_utc)
 
 
 class Route(BaseORM):
     __tablename__ = "route"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
+    vehicle_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey("vehicle.id", ondelete="CASCADE"), nullable=False
+    )
+    vehicle: Mapped["Vehicle"] = relationship(back_populates="routes")
+
     origin: Mapped[str] = mapped_column(String(100), nullable=False)
     destination: Mapped[str] = mapped_column(String(100), nullable=False)
 
-    # Ex (24hr format): start_time=06:00, end_time=09:00
-    start_time: Mapped[str] = mapped_column(String(5), nullable=False)
-    end_time: Mapped[str] = mapped_column(String(5), nullable=False)
+    start_time: Mapped[time] = mapped_column(Time, nullable=False)
+    end_time: Mapped[time] = mapped_column(Time, nullable=False)
 
     # Ex: ["SEG", "TER"]
     days: Mapped[list[str]] = mapped_column(ARRAY(String(3)), nullable=False)
-
-    vehicles: Mapped[list["Vehicle"]] = relationship(
-        secondary=vehicle_route_association, back_populates="routes"
-    )
