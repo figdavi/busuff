@@ -29,6 +29,21 @@ class PositionCreate(BaseModel):
     hdop: float | None
 
 
+class PositionOut(BaseOut):
+    id: int
+    timestamp_utc: datetime
+    latitude: float
+    longitude: float
+    speed_kmh: float
+    course_deg: float
+    num_satellites: int
+    hdop: float
+
+
+class PositionsOut(BaseOut):
+    data: list[PositionOut]
+
+
 class PresenceCreate(BaseModel):
     user_name: str
     route_id: str
