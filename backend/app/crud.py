@@ -1,13 +1,13 @@
 from sqlalchemy.orm import Session
-from app.models import Vehicle, Route, GPSReadingCreate, GPSReading
+from app.models import Vehicle, Route, PositionCreate, Position
 
 
-def save_gps_reading(session: Session, gps_reading: GPSReadingCreate) -> None:
-    vehicle = get_or_create_vehicle(session, gps_reading.vehicle_id)
-    gps_reading_dict = gps_reading.model_dump()
-    gps_reading_db = GPSReading(**gps_reading_dict, vehicle=vehicle)
+def save_position(session: Session, position: PositionCreate) -> None:
+    vehicle = get_or_create_vehicle(session, position.vehicle_id)
+    position_dict = position.model_dump()
+    position_db = Position(**position_dict, vehicle=vehicle)
 
-    session.add(gps_reading_db)
+    session.add(position_db)
 
 
 def get_or_create_vehicle(

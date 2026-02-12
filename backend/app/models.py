@@ -18,7 +18,7 @@ class BaseOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class GPSReadingCreate(BaseModel):
+class PositionCreate(BaseModel):
     vehicle_id: str
     timestamp_utc: datetime
     latitude: float | None
@@ -70,8 +70,8 @@ class Vehicle(BaseORM):
     name: Mapped[str] = mapped_column(String(50))
 
 
-class GPSReading(BaseORM):
-    __tablename__ = "gps_reading"
+class Position(BaseORM):
+    __tablename__ = "position"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     vehicle_id: Mapped[str] = mapped_column(
         String(32), ForeignKey("vehicle.id"), nullable=False

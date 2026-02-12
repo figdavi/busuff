@@ -1,6 +1,6 @@
 import json
 from typing import Any, Literal
-from app.crud import save_gps_reading
+from app.crud import save_position
 from app.core.database import SessionLocal
 
 import paho.mqtt.client as mqttc
@@ -54,7 +54,7 @@ def subscribe(client: mqttc.Client):
             print(json.dumps(data, indent=4))
 
             with SessionLocal.begin() as session:
-                save_gps_reading(session, data)
+                save_position(session, data)
 
         except Exception as e:
             print(f"Erro no processamento/salvamento da mensagem: {e}")
