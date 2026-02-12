@@ -7,6 +7,8 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     ARRAY,
+    Table,
+    Column,
 )
 from sqlalchemy.orm import DeclarativeBase, relationship, Mapped, mapped_column
 
@@ -79,18 +81,48 @@ class BaseORM(DeclarativeBase):
     pass
 
 
+# Ref: https://docs.sqlalchemy.org/en/21/orm/basic_relationships.html#many-to-many
+
+vehicle_route_association = Table(
+    "vehicle_route",
+    BaseORM.metadata,
+    Column(
+        "vehicle_id",
+        String(32),
+        ForeignKey("vehicle.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "route_id",
+        Integer,
+        ForeignKey("route.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+)
+
+
 class Vehicle(BaseORM):
     __tablename__ = "vehicle"
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
 
+    routes: Mapped[list["Route"]] = relationship(
+        secondary=vehicle_route_association, back_populates="vehicles"
+    )
+
+    positions: Mapped[list["Position"]] = relationship(
+        back_populates="vehicle", cascade="all, delete-orphan"
+    )
+
 
 class Position(BaseORM):
     __tablename__ = "position"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
     vehicle_id: Mapped[str] = mapped_column(
-        String(32), ForeignKey("vehicle.id"), nullable=False
+        String(32), ForeignKey("vehicle.id", ondelete="CASCADE"), nullable=False
     )
+
     timestamp_utc: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     latitude: Mapped[float] = mapped_column(Float)
     longitude: Mapped[float] = mapped_column(Float)
@@ -99,15 +131,12 @@ class Position(BaseORM):
     num_satellites: Mapped[int] = mapped_column(Integer)
     hdop: Mapped[float] = mapped_column(Float)
 
-    vehicle = relationship("Vehicle")
+    vehicle: Mapped["Vehicle"] = relationship(back_populates="positions")
 
 
 class Route(BaseORM):
     __tablename__ = "route"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    vehicle_id: Mapped[str] = mapped_column(
-        String(50), ForeignKey("vehicle.id"), nullable=False
-    )
 
     origin: Mapped[str] = mapped_column(String(100), nullable=False)
     destination: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -119,4 +148,6 @@ class Route(BaseORM):
     # Ex: ["SEG", "TER"]
     days: Mapped[list[str]] = mapped_column(ARRAY(String(3)), nullable=False)
 
-    vehicle = relationship("Vehicle")
+    vehicles: Mapped[list["Vehicle"]] = relationship(
+        secondary=vehicle_route_association, back_populates="routes"
+    )
