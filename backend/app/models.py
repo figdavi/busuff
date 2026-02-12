@@ -80,7 +80,7 @@ class Vehicle(BaseORM):
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
 
-    routes: Mapped[list["Route"]] = relationship(back_populates="vehicles")
+    routes: Mapped[list["Route"]] = relationship(back_populates="vehicle")
     positions: Mapped[list["Position"]] = relationship(
         back_populates="vehicle", cascade="all, delete-orphan"
     )
