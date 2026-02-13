@@ -53,3 +53,15 @@ docker compose \
   -f compose.prod.yaml \
   up
 ```
+
+### Backend Development
+
+Backend docs: [backend/README.md](backend/README.md).
+
+### Frontend Development
+
+Frontend docs: [frontend/README.md](frontend/README.md).
+
+### GPS device Development
+
+GPS device docs: [gps/README.md](gps/README.md).
