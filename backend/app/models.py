@@ -24,13 +24,14 @@ class PositionCreate(BaseModel):
 
 class PositionOut(BaseOut):
     id: int
+    vehicle_id: str
     timestamp_utc: datetime
-    latitude: float
-    longitude: float
-    speed_kmh: float
-    course_deg: float
-    num_satellites: int
-    hdop: float
+    latitude: float | None
+    longitude: float | None
+    speed_kmh: float | None
+    course_deg: float | None
+    num_satellites: int | None
+    hdop: float | None
 
 
 class PositionsOut(BaseOut):
@@ -44,11 +45,12 @@ class PresenceCreate(BaseModel):
 
 
 class RouteOut(BaseOut):
-    id: str
+    id: int
     vehicle_id: str
     origin: str
     destination: str
-    time_range: str
+    start_time: time
+    end_time: time
     days: list[str]
 
 
@@ -109,7 +111,7 @@ Index("ix_position_vehicle_timestamp", Position.vehicle_id, Position.timestamp_u
 
 class Route(BaseORM):
     __tablename__ = "route"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
     vehicle_id: Mapped[str] = mapped_column(
         String(32), ForeignKey("vehicle.id", ondelete="CASCADE"), nullable=False
