@@ -1,13 +1,6 @@
-from datetime import datetime
+from datetime import datetime, time
 from pydantic import BaseModel
-from sqlalchemy import (
-    Integer,
-    String,
-    Float,
-    DateTime,
-    ForeignKey,
-    ARRAY,
-)
+from sqlalchemy import Integer, String, Float, DateTime, ForeignKey, ARRAY, Index, Time
 from sqlalchemy.orm import DeclarativeBase, relationship, Mapped, mapped_column
 
 
@@ -18,7 +11,7 @@ class BaseOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class GPSReadingCreate(BaseModel):
+class PositionCreate(BaseModel):
     vehicle_id: str
     timestamp_utc: datetime
     latitude: float | None
@@ -29,6 +22,22 @@ class GPSReadingCreate(BaseModel):
     hdop: float | None
 
 
+class PositionOut(BaseOut):
+    id: int
+    vehicle_id: str
+    timestamp_utc: datetime
+    latitude: float | None
+    longitude: float | None
+    speed_kmh: float | None
+    course_deg: float | None
+    num_satellites: int | None
+    hdop: float | None
+
+
+class PositionsOut(BaseOut):
+    data: list[PositionOut]
+
+
 class PresenceCreate(BaseModel):
     user_name: str
     route_id: str
@@ -36,11 +45,12 @@ class PresenceCreate(BaseModel):
 
 
 class RouteOut(BaseOut):
-    id: str
+    id: int
     vehicle_id: str
     origin: str
     destination: str
-    time_range: str
+    start_time: time
+    end_time: time
     days: list[str]
 
 
@@ -64,18 +74,29 @@ class BaseORM(DeclarativeBase):
     pass
 
 
+# Ref: https://docs.sqlalchemy.org/en/21/orm/basic_relationships.html
+
+
 class Vehicle(BaseORM):
     __tablename__ = "vehicle"
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
 
-
-class GPSReading(BaseORM):
-    __tablename__ = "gps_reading"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    vehicle_id: Mapped[str] = mapped_column(
-        String(32), ForeignKey("vehicle.id"), nullable=False
+    routes: Mapped[list["Route"]] = relationship(back_populates="vehicle")
+    positions: Mapped[list["Position"]] = relationship(
+        back_populates="vehicle", cascade="all, delete-orphan"
     )
+
+
+class Position(BaseORM):
+    __tablename__ = "position"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    vehicle_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey("vehicle.id", ondelete="CASCADE"), nullable=False
+    )
+    vehicle: Mapped["Vehicle"] = relationship(back_populates="positions")
+
     timestamp_utc: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     latitude: Mapped[float] = mapped_column(Float)
     longitude: Mapped[float] = mapped_column(Float)
@@ -84,24 +105,24 @@ class GPSReading(BaseORM):
     num_satellites: Mapped[int] = mapped_column(Integer)
     hdop: Mapped[float] = mapped_column(Float)
 
-    vehicle = relationship("Vehicle")
+
+Index("ix_position_vehicle_timestamp", Position.vehicle_id, Position.timestamp_utc)
 
 
 class Route(BaseORM):
     __tablename__ = "route"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
     vehicle_id: Mapped[str] = mapped_column(
-        String(50), ForeignKey("vehicle.id"), nullable=False
+        String(32), ForeignKey("vehicle.id", ondelete="CASCADE"), nullable=False
     )
+    vehicle: Mapped["Vehicle"] = relationship(back_populates="routes")
 
     origin: Mapped[str] = mapped_column(String(100), nullable=False)
     destination: Mapped[str] = mapped_column(String(100), nullable=False)
 
-    # Ex (24hr format): start_time=06:00, end_time=09:00
-    start_time: Mapped[str] = mapped_column(String(5), nullable=False)
-    end_time: Mapped[str] = mapped_column(String(5), nullable=False)
+    start_time: Mapped[time] = mapped_column(Time, nullable=False)
+    end_time: Mapped[time] = mapped_column(Time, nullable=False)
 
     # Ex: ["SEG", "TER"]
     days: Mapped[list[str]] = mapped_column(ARRAY(String(3)), nullable=False)
-
-    vehicle = relationship("Vehicle")
