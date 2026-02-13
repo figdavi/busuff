@@ -1,8 +1,11 @@
 from sqlalchemy.orm import Session
+from typing import Any
 from app.models import Vehicle, Route, PositionCreate, Position
 
 
-def save_position(session: Session, position: PositionCreate) -> None:
+def save_position(session: Session, position_json: dict[str, Any]) -> None:
+    position = PositionCreate.model_validate(position_json)
+
     vehicle = get_or_create_vehicle(session, position.vehicle_id)
     position_dict = position.model_dump()
     position_db = Position(**position_dict, vehicle=vehicle)

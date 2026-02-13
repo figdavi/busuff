@@ -11,7 +11,7 @@ import paho.mqtt.enums as mqttenums
 
 broker = "broker.hivemq.com"
 port = 1883
-topic = "mqtt_iot_123321/busuff"
+topic = "busuff/#"
 transport: Literal["tcp", "websockets", "unix"] = "tcp"
 protocol = mqttc.MQTTv5
 
@@ -48,13 +48,14 @@ def connect_mqtt() -> mqttc.Client:
 
 def subscribe(client: mqttc.Client):
     def on_message(client: mqttc.Client, userdata: Any, msg: mqttc.MQTTMessage):
-        print(f"From topic: '{msg.topic}', message: ")
         try:
             data = json.loads(msg.payload.decode())
+            print(f"From topic: '{msg.topic}', message: ")
             print(json.dumps(data, indent=4))
 
             with SessionLocal.begin() as session:
                 save_position(session, data)
+                print("Position saved.")
 
         except Exception as e:
             print(f"Erro no processamento/salvamento da mensagem: {e}")
