@@ -39,8 +39,8 @@ All messages follow this schema:
 | ---------------- | ----------------- | -------- | ----------------------------------------------------------------------------------- |
 | `vehicle_id`     | string            | Yes      | Unique identifier of the vehicle/device sending the telemetry.                      |
 | `timestamp_utc`  | string (ISO 8601) | Yes      | UTC timestamp of the GPS reading in ISO 8601 format (e.g., `2026-02-13T15:04:05Z`). |
-| `lat`            | float             | No       | Latitude in decimal degrees (WGS84), up to 6 decimal places.                        |
-| `lng`            | float             | No       | Longitude in decimal degrees (WGS84), up to 6 decimal places.                       |
+| `latitude`       | float             | No       | Latitude in decimal degrees (WGS84), up to 6 decimal places.                        |
+| `longitude`      | float             | No       | Longitude in decimal degrees (WGS84), up to 6 decimal places.                       |
 | `speed_kmh`      | float             | No       | Ground speed in kilometers per hour, 1 decimal place.                               |
 | `course_deg`     | float             | No       | Direction of movement in degrees from North (0–360°), 1 decimal place.              |
 | `num_satellites` | integer           | No       | Number of satellites used in the GPS fix.                                           |
@@ -56,8 +56,8 @@ All messages follow this schema:
 {
     "vehicle_id": "14757629",
     "timestamp_utc": "2025-11-02T22:21:04Z",
-    "lat": 60.424116,
-    "lng": -22.814005,
+    "latitude": 60.424116,
+    "longitude": -22.814005,
     "speed_kmh": 0,
     "course_deg": 163.1,
     "num_satellites": 8,
