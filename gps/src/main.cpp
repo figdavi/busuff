@@ -15,8 +15,8 @@ static const int MQTT_LED = D2;
 // Constants
 static const int GPS_BAUD = 9600;
 static const int SERIAL_BAUD = 115200;
+static char mqttTopic[64];
 static const char MQTT_BROKER[] = "broker.hivemq.com";
-static const char MQTT_TOPIC[] = "busuff/route003/dev002";
 static const int MQTT_PORT = 1883;
 static const unsigned long MQTT_PUB_INTERVAL_MS = 5000;
 static const unsigned long WIFI_RECONNECT_INTERVAL_MS = 5000;
@@ -62,8 +62,12 @@ void setup()
     digitalWrite(MQTT_LED, HIGH);
 
     snprintf(VEHICLE_ID, sizeof(VEHICLE_ID), "%u", ESP.getChipId());
+    snprintf(mqttTopic, sizeof(mqttTopic), "busuff/routes/%s/vehicles/%s", ROUTE, VEHICLE_ID);
 
     WiFi.begin(HOTSPOT_SSID, HOTSPOT_PASS);
+
+    mqttClient.setBufferSize(512);
+    mqttClient.setKeepAlive(30);
     mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
 }
 
@@ -101,7 +105,7 @@ void loop()
         DEBUG_PRINTLN("MQTT not connected, skipping publish");
         return;
     }
-    mqttClient.publish(MQTT_TOPIC, message);
+    mqttClient.publish(mqttTopic, message);
 }
 
 void checkWiFi()
@@ -185,11 +189,12 @@ bool buildPayload(char *output, size_t outputSize)
         return false;
     }
     jsonData["timestamp_utc"] = timestampStr;
+
     // Optional fields:
     if (gps.location.isValid() && gps.location.isUpdated())
     {
-        jsonData["lat"] = roundN(gps.location.lat(), 6);
-        jsonData["lng"] = roundN(gps.location.lng(), 6);
+        jsonData["latitude"] = roundN(gps.location.lat(), 6);
+        jsonData["longitude"] = roundN(gps.location.lng(), 6);
     }
     if (gps.speed.isValid() && gps.speed.isUpdated())
         jsonData["speed_kmh"] = roundN(gps.speed.kmph(), 1);
