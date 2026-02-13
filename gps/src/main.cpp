@@ -15,8 +15,8 @@ static const int MQTT_LED = D2;
 // Constants
 static const int GPS_BAUD = 9600;
 static const int SERIAL_BAUD = 115200;
+static char mqttTopic[64];
 static const char MQTT_BROKER[] = "broker.hivemq.com";
-static const char MQTT_TOPIC[] = "busuff/route003/dev002";
 static const int MQTT_PORT = 1883;
 static const unsigned long MQTT_PUB_INTERVAL_MS = 5000;
 static const unsigned long WIFI_RECONNECT_INTERVAL_MS = 5000;
@@ -62,8 +62,12 @@ void setup()
     digitalWrite(MQTT_LED, HIGH);
 
     snprintf(VEHICLE_ID, sizeof(VEHICLE_ID), "%u", ESP.getChipId());
+    snprintf(mqttTopic, sizeof(mqttTopic), "busuff/routes/%s/vehicles/%s", ROUTE, VEHICLE_ID);
 
     WiFi.begin(HOTSPOT_SSID, HOTSPOT_PASS);
+
+    mqttClient.setBufferSize(512);
+    mqttClient.setKeepAlive(30);
     mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
 }
 
@@ -101,7 +105,7 @@ void loop()
         DEBUG_PRINTLN("MQTT not connected, skipping publish");
         return;
     }
-    mqttClient.publish(MQTT_TOPIC, message);
+    mqttClient.publish(mqttTopic, message);
 }
 
 void checkWiFi()
@@ -176,7 +180,7 @@ bool buildPayload(char *output, size_t outputSize)
      */
     jsonData.clear();
 
-    jsonData["vehicle"]["id"] = VEHICLE_ID;
+    jsonData["vehicle_id"] = VEHICLE_ID;
 
     char timestampStr[32];
     if (!buildTimestamp(timestampStr, sizeof(timestampStr)))
@@ -184,22 +188,22 @@ bool buildPayload(char *output, size_t outputSize)
         DEBUG_PRINTLN("Invalid timestamp, skipping payload build.");
         return false;
     }
-    jsonData["gps"]["timestamp_utc"] = timestampStr;
+    jsonData["timestamp_utc"] = timestampStr;
 
     // Optional fields:
     if (gps.location.isValid() && gps.location.isUpdated())
     {
-        jsonData["gps"]["location"]["lat"] = roundN(gps.location.lat(), 6);
-        jsonData["gps"]["location"]["lng"] = roundN(gps.location.lng(), 6);
+        jsonData["latitude"] = roundN(gps.location.lat(), 6);
+        jsonData["longitude"] = roundN(gps.location.lng(), 6);
     }
     if (gps.speed.isValid() && gps.speed.isUpdated())
-        jsonData["gps"]["speed_kmh"] = roundN(gps.speed.kmph(), 1);
+        jsonData["speed_kmh"] = roundN(gps.speed.kmph(), 1);
     if (gps.course.isValid() && gps.course.isUpdated())
-        jsonData["gps"]["course_deg"] = roundN(gps.course.deg(), 1);
+        jsonData["course_deg"] = roundN(gps.course.deg(), 1);
     if (gps.satellites.isValid() && gps.satellites.isUpdated())
-        jsonData["gps"]["num_satellites"] = gps.satellites.value();
+        jsonData["num_satellites"] = gps.satellites.value();
     if (gps.hdop.isValid() && gps.hdop.isUpdated())
-        jsonData["gps"]["hdop"] = roundN(gps.hdop.hdop(), 2);
+        jsonData["hdop"] = roundN(gps.hdop.hdop(), 2);
 
     return serializeJson(jsonData, output, outputSize) > 0;
 }

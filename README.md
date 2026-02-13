@@ -54,64 +54,14 @@ docker compose \
   up
 ```
 
-## GPS data format (JSON)
+### Backend Development
 
-```json
-{
-	"vehicle": {
-		"id": string,
-	},
-	"gps": {
-		"timestamp_utc": string (ISO 8601 UTC time),
-		"location" {
-			"lat": float (*OPTIONAL*, 6 decimal places),
-			"lng": float (*OPTIONAL*, 6 decimal places)
-		},
-		"speed_kmh": float (*OPTIONAL*, 1 decimal),
-		"course_deg": float (*OPTIONAL*, 1 decimal, 0–360°, degrees from North),
-		"num_satellites": int (*OPTIONAL*),
-		"hdop": float (*OPTIONAL*, 2 decimal)
-	}
-}
-```
+Backend docs: [backend/README.md](backend/README.md).
 
-## Examples
+### Frontend Development
 
-### Example 1 (Full GPS Fix)
+Frontend docs: [frontend/README.md](frontend/README.md).
 
-```json
-{
-    "vehicle": {
-        "id": "14757629"
-    },
-    "gps": {
-        "timestamp_utc": "2025-11-02T22:21:04Z",
-        "location": {
-            "lat": 60.424116,
-            "lng": -22.814005
-        },
-        "speed_kmh": 0,
-        "course_deg": 163.1,
-        "num_satellites": 8,
-        "hdop": 1.12
-    }
-}
-```
+### GPS device Development
 
-### Example 2 (Partial GPS Fix)
-
-- **Note**: Fields marked as optional may be omitted if the GPS signal quality is insufficient.
-
-```json
-{
-    "vehicle": {
-        "id": "14757629"
-    },
-    "gps": {
-        "timestamp_utc": "2025-11-02T22:21:04Z",
-        "course_deg": 163.1,
-        "num_satellites": 8,
-        "hdop": 1.12
-    }
-}
-```
+GPS device docs: [gps/README.md](gps/README.md).

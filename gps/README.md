@@ -19,13 +19,15 @@ Two LEDs indicate connection states:
 
 ### Build and upload
 
-- Ensure PlatformIO (pio) is available in your PATH.
+#### Dev
 
 ```bash
-## Development build
 pio run -e dev --target upload
+```
 
-## Production build
+#### Prod
+
+```bash
 pio run -e prod --target upload
 ```
 
@@ -33,22 +35,45 @@ pio run -e prod --target upload
 
 All messages follow this schema:
 
+| Field            | Type              | Required | Description                                                                         |
+| ---------------- | ----------------- | -------- | ----------------------------------------------------------------------------------- |
+| `vehicle_id`     | string            | Yes      | Unique identifier of the vehicle/device sending the telemetry.                      |
+| `timestamp_utc`  | string (ISO 8601) | Yes      | UTC timestamp of the GPS reading in ISO 8601 format (e.g., `2026-02-13T15:04:05Z`). |
+| `lat`            | float             | No       | Latitude in decimal degrees (WGS84), up to 6 decimal places.                        |
+| `lng`            | float             | No       | Longitude in decimal degrees (WGS84), up to 6 decimal places.                       |
+| `speed_kmh`      | float             | No       | Ground speed in kilometers per hour, 1 decimal place.                               |
+| `course_deg`     | float             | No       | Direction of movement in degrees from North (0–360°), 1 decimal place.              |
+| `num_satellites` | integer           | No       | Number of satellites used in the GPS fix.                                           |
+| `hdop`           | float             | No       | Horizontal Dilution of Precision (signal accuracy indicator), 2 decimal places.     |
+
+### Examples
+
+- **Note**: Fields marked as non-required may be omitted if the GPS signal quality is insufficient.
+
+#### Example 1 (Full GPS Fix)
+
 ```json
 {
-    "vehicle": {
-        "id": string,
-    },
-    "gps": {
-        "timestamp_utc": string (ISO 8601 UTC time),
-        "location" {
-            "lat": float (*OPTIONAL*, 6 decimal places),
-            "lng": float (*OPTIONAL*, 6 decimal places)
-        },
-        "speed_kmh": float (*OPTIONAL*, 1 decimal),
-        "course_deg": float (*OPTIONAL*, 1 decimal, 0–360°, degrees from North),
-        "num_satellites": int (*OPTIONAL*),
-        "hdop": float (*OPTIONAL*, 2 decimal)
-    }
+    "vehicle_id": "14757629",
+    "timestamp_utc": "2025-11-02T22:21:04Z",
+    "lat": 60.424116,
+    "lng": -22.814005,
+    "speed_kmh": 0,
+    "course_deg": 163.1,
+    "num_satellites": 8,
+    "hdop": 1.12
+}
+```
+
+#### Example 2 (Partial GPS Fix)
+
+```json
+{
+    "vehicle_id": "14757629",
+    "timestamp_utc": "2025-11-02T22:21:04Z",
+    "course_deg": 163.1,
+    "num_satellites": 8,
+    "hdop": 1.12
 }
 ```
 
