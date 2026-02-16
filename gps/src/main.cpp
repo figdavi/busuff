@@ -16,8 +16,6 @@ static const int MQTT_LED = D2;
 static const int GPS_BAUD = 9600;
 static const int SERIAL_BAUD = 115200;
 static char mqttTopic[64];
-static const char MQTT_BROKER[] = "broker.hivemq.com";
-static const int MQTT_PORT = 1883;
 static const unsigned long MQTT_PUB_INTERVAL_MS = 5000;
 static const unsigned long WIFI_RECONNECT_INTERVAL_MS = 5000;
 static const unsigned long MQTT_RECONNECT_INTERVAL_MS = 3000;
@@ -62,7 +60,7 @@ void setup()
     digitalWrite(MQTT_LED, HIGH);
 
     snprintf(VEHICLE_ID, sizeof(VEHICLE_ID), "%u", ESP.getChipId());
-    snprintf(mqttTopic, sizeof(mqttTopic), "busuff/routes/%s/vehicles/%s", ROUTE, VEHICLE_ID);
+    snprintf(mqttTopic, sizeof(mqttTopic), "busuff/%s/position", VEHICLE_ID);
 
     WiFi.begin(HOTSPOT_SSID, HOTSPOT_PASS);
 
@@ -188,14 +186,16 @@ bool buildPayload(char *output, size_t outputSize)
         DEBUG_PRINTLN("Invalid timestamp, skipping payload build.");
         return false;
     }
-    jsonData["timestamp_utc"] = timestampStr;
-
-    // Optional fields:
-    if (gps.location.isValid() && gps.location.isUpdated())
+    if (!gps.location.isValid() || !gps.location.isUpdated())
     {
-        jsonData["latitude"] = roundN(gps.location.lat(), 6);
-        jsonData["longitude"] = roundN(gps.location.lng(), 6);
+        DEBUG_PRINTLN("Invalid location, skipping payload build.");
+        return false;
     }
+
+    jsonData["timestamp_utc"] = timestampStr;
+    jsonData["lat"] = roundN(gps.location.lat(), 6);
+    jsonData["lng"] = roundN(gps.location.lng(), 6);
+
     if (gps.speed.isValid() && gps.speed.isUpdated())
         jsonData["speed_kmh"] = roundN(gps.speed.kmph(), 1);
     if (gps.course.isValid() && gps.course.isUpdated())
