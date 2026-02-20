@@ -66,7 +66,7 @@ void setup()
 
     mqttClient.setBufferSize(512);
     mqttClient.setKeepAlive(30);
-    mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
+    mqttClient.setServer(MQTT_BROKER_IP, MQTT_BROKER_PORT);
 }
 
 // Main Loop
@@ -143,7 +143,7 @@ void checkMQTT()
         {
             lastAttempt = millis();
             DEBUG_PRINT("Trying to connect to MQTT broker: ");
-            DEBUG_PRINTLN(MQTT_BROKER);
+            DEBUG_PRINTLN(MQTT_BROKER_IP);
             mqttClient.connect(VEHICLE_ID);
         }
         wasConnected = false;

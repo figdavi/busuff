@@ -1,5 +1,6 @@
 import json
 from typing import Any, Literal
+import os
 from app.crud import save_position
 from app.core.database import SessionLocal
 
@@ -8,15 +9,18 @@ import paho.mqtt.reasoncodes as mqttrc
 import paho.mqtt.properties as mqttprop
 import paho.mqtt.enums as mqttenums
 
-
-broker = "broker.hivemq.com"
-port = 1883
+broker = os.getenv("MQTT_BROKER_IP")
+port = (
+    int(os.getenv("MQTT_BROKER_PORT", 0))
+    if os.getenv("MQTT_BROKER_PORT") is not None
+    else None
+)
 topic = "busuff/#"
 transport: Literal["tcp", "websockets", "unix"] = "tcp"
 protocol = mqttc.MQTTv5
 
 
-def connect_mqtt() -> mqttc.Client:
+def connect_mqtt(mqtt_broker_ip: str, mqtt_broker_port: int) -> mqttc.Client | None:
     def on_connect(
         client: mqttc.Client,
         userdata: Any,
@@ -42,7 +46,13 @@ def connect_mqtt() -> mqttc.Client:
         callback_api_version=mqttenums.CallbackAPIVersion.VERSION2,
     )
     client.on_connect = on_connect
-    client.connect(broker, port)
+
+    if not mqtt_broker_ip:
+        raise ValueError("Parameter 'mqtt_broker_ip' cannot be empty.")
+    if not mqtt_broker_port:
+        raise ValueError("Parameter 'mqtt_broker_port' cannot be empty.")
+
+    client.connect(mqtt_broker_ip, mqtt_broker_port)
     return client
 
 
@@ -66,9 +76,24 @@ def subscribe(client: mqttc.Client):
 
 
 def run():
-    client = connect_mqtt()
-    subscribe(client)
-    client.loop_forever()
+    try:
+        if broker is None:
+            print("Error: broker not defined")
+            return
+        if port is None:
+            print("Error: port not defined")
+            return
+
+        client = connect_mqtt(broker, port)
+
+        if not client:
+            print("Error: client not defined")
+            return
+
+        subscribe(client)
+        client.loop_forever()
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 if __name__ == "__main__":
