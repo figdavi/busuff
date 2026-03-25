@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
+from app.crud import get_vehicles_with_last_position, get_last_position
 from app.core.database import SessionDep
-from app.models import Vehicle, VehicleOut, VehiclesOut, Position, PositionOut
+from app.models import Vehicle, VehicleWithPositionOut
 
 
 router = APIRouter(
@@ -12,41 +12,28 @@ router = APIRouter(
 )
 
 
-@router.get("/", status_code=200, response_model=VehiclesOut)
+@router.get("", status_code=200, response_model=list[VehicleWithPositionOut])
 async def read_vehicles(session: SessionDep):
-    stmt = select(Vehicle).order_by(Vehicle.id)
-    vehicles = session.scalars(stmt).all()
+    vehicles_with_last_position = get_vehicles_with_last_position(session=session)
 
-    return {"data": vehicles}
+    vehicle_with_position_list: list[VehicleWithPositionOut] = [
+        VehicleWithPositionOut.from_data(*vp.tuple())
+        for vp in vehicles_with_last_position
+    ]
 
-
-@router.get("/{id}", status_code=200, response_model=VehicleOut)
-async def read_vehicle(session: SessionDep, id: str):
-    vehicle = session.get(Vehicle, id)
-
-    if not vehicle:
-        raise HTTPException(status_code=404, detail="Vehicle not found")
-
-    return vehicle
+    return vehicle_with_position_list
 
 
-@router.get("/{id}/last-position", status_code=200, response_model=PositionOut)
-async def read_last_position(session: SessionDep, id: str):
-    vehicle = session.get(Vehicle, id)
+@router.get("/{vehicle_id}", status_code=200, response_model=VehicleWithPositionOut)
+async def read_vehicle(session: SessionDep, vehicle_id: str):
+    vehicle = session.get(Vehicle, vehicle_id)
 
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found")
 
-    # limit(1): Database will sort only one row instead of whole table (even though ORM is using .scalar())
-    stmt = (
-        select(Position)
-        .where(Position.vehicle_id == id)
-        .order_by(Position.timestamp_utc.desc())
-        .limit(1)
-    )
-    last_position = session.scalar(stmt)
+    last_position = get_last_position(session=session, vehicle_id=vehicle_id)
 
     if not last_position:
-        raise HTTPException(status_code=404, detail="No positions found")
+        return VehicleWithPositionOut.from_data(vehicle, None)
 
-    return last_position
+    return VehicleWithPositionOut.from_data(vehicle, last_position)

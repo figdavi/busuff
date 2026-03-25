@@ -1,7 +1,8 @@
 import json
 from typing import Any, Literal
 import os
-from app.crud import save_position
+from app.crud import create_position
+from app.utils import parse_position
 from app.core.database import SessionLocal
 
 import paho.mqtt.client as mqttc
@@ -63,8 +64,10 @@ def subscribe(client: mqttc.Client):
             print(f"From topic: '{msg.topic}', message: ")
             print(json.dumps(data, indent=4))
 
+            position = parse_position(data)
+
             with SessionLocal.begin() as session:
-                save_position(session, data)
+                create_position(session, position)
                 print("Position saved.")
 
         except Exception as e:
