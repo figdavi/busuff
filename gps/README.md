@@ -56,8 +56,8 @@ All messages follow this schema:
 {
     "vehicle_id": "14757629",
     "timestamp_utc": "2025-11-02T22:21:04Z",
-    "latitude": 60.424116,
-    "longitude": -22.814005,
+    "lat": 60.424116,
+    "lng": -22.814005,
     "speed_kmh": 40.7,
     "course_deg": 163.1,
     "num_satellites": 8,
